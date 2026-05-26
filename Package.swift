@@ -9,13 +9,17 @@ let package = Package(
       name: "UIKitCorePrivate",
       targets: ["UIKitCorePrivate"]
     ),
+    .library(
+      name: "Example",
+      targets: ["Example"]
+    ),
   ],
   targets: [
     .target(
       name: "UIKitCorePrivate"
     ),
-    .testTarget(
-      name: "UIKitCorePrivateTests",
+    .target(
+      name: "Example",
       dependencies: ["UIKitCorePrivate"]
     ),
   ]
