@@ -88,17 +88,7 @@ final class DummyCollectionViewController: UICollectionViewController {
 @available(iOS 18.0, *)
 extension DummyCollectionViewController {
   final class Repository {
-    var items: [Item] = [
-      .init(title: "AirPlane Mode"),
-      .init(title: "Wi-Fi"),
-      .init(title: "Bluetooth"),
-      .init(title: "Mobile Network"),
-      .init(title: "Sharing Network"),
-      .init(title: "Notification"),
-      .init(title: "Sound and Feedback"),
-      .init(title: "Focus Mode"),
-      .init(title: "Screen Time")
-    ]
+    var items: [Item] = (1...100).map { Item(title: "Title \($0)") }
   }
   
   enum Sections: Sendable, Hashable, CaseIterable {
