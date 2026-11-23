@@ -2,3 +2,5 @@
 #import "_UINavigationBarLayoutParticipating-Protocol.h"
 #import "UINavigationItem.h"
 #import "UINavigationController.h"
+#import "_UITabBarControllerVisualStyle.h"
+#import "_UIScrollAwayInteraction.h"

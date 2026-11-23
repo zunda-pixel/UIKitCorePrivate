@@ -13,7 +13,8 @@
 #include "_UIPointerInteractionAssistant.h"
 #include "_UIScrollPocketInteraction.h"
 
-UIKIT_EXTERN API_AVAILABLE(ios(13.4))
+// weak_import: if a future OS removes the class, the app still launches. Check NSClassFromString before use.
+UIKIT_EXTERN API_AVAILABLE(ios(13.4)) __attribute__((weak_import))
 @interface _UINavigationBarPalette : UIView <UIPointerInteractionDelegate, _UINavigationBarLayoutParticipating> {
 }
 
@@ -22,9 +23,9 @@ UIKIT_EXTERN API_AVAILABLE(ios(13.4))
 @property (nonatomic) _Bool transitioning;
 @property (nonatomic) _Bool pinned;
 @property (weak, nonatomic) UINavigationItem *owningNavigationItem;
-@property (nonatomic) unsigned long long _contentViewMarginType;
-@property (nonatomic) _Bool _displaysWhenSearchActive;
-@property (nonatomic) long long _layoutPriority;
+@property (nonatomic, setter=_setContentViewMarginType:) unsigned long long _contentViewMarginType;
+@property (nonatomic, setter=_setDisplaysWhenSearchActive:) _Bool _displaysWhenSearchActive;
+@property (nonatomic, setter=_setLayoutPriority:) long long _layoutPriority;
 @property (readonly, nonatomic) UIView *contentView;
 @property (nonatomic) double preferredHeight;
 @property (nonatomic) double minimumHeight;
