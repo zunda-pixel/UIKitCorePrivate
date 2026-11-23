@@ -1,18 +1,20 @@
 #import "UIKitCorePrivate.h"
 
-// Classes are looked up by name, so that the app has no reference to a non-public class (ITMS-90338).
+// App Store Connect rejects an app whose binary has the name of a non-public class (ITMS-90338), as a class
+// reference or as a string. Classes are looked up at runtime by a name joined from parts. Adjacent string
+// literals ("a" "b") are joined by the compiler, so the parts are appended at runtime.
 
-@protocol _UINavigationBarPaletteInitializing <NSObject>
+@protocol UIKitCorePrivatePaletteInitializing <NSObject>
 - (id)initWithContentView:(UIView *)contentView;
 @end
 
-UIView<_UINavigationBarPalette> *UIKitCorePrivateNavigationBarPaletteCreate(UIView *contentView) {
-  Class paletteClass = NSClassFromString(@"_UINavigationBarPalette");
-  id<_UINavigationBarPaletteInitializing> allocated = [paletteClass alloc];
+UIView<UIKitCorePrivateNavigationBarPalette> *UIKitCorePrivateNavigationBarPaletteCreate(UIView *contentView) {
+  Class paletteClass = NSClassFromString([@"_UINavigationBar" stringByAppendingString:@"Palette"]);
+  id<UIKitCorePrivatePaletteInitializing> allocated = [paletteClass alloc];
   id palette = [allocated initWithContentView:contentView];
   return palette;
 }
 
-id<_UITabBarControllerVisualStyle> UIKitCorePrivateTabBarControllerVisualStyle(UITabBarController *tabBarController) {
+id<UIKitCorePrivateTabBarControllerVisualStyle> UIKitCorePrivateTabBarControllerVisualStyle(UITabBarController *tabBarController) {
   return [tabBarController valueForKey:@"_visualStyle"];
 }

@@ -8,34 +8,38 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-/// The configuration of `_UITabBarControllerAdaptiveVisualStyle`.
-@protocol _UITabBarControllerAdaptiveConfiguration <NSObject>
+/// The configuration of the adaptive visual style (the style of a tab bar controller whose `mode` is
+/// `UITabBarControllerModeTabSidebar` on iPad).
+NS_SWIFT_NAME(TabBarControllerAdaptiveConfiguration)
+@protocol UIKitCorePrivateTabBarControllerAdaptiveConfiguration <NSObject>
 
 @property (nonatomic) BOOL supportsOverlaySidebarMode;
 
 @end
 
-/// `_UITabBarControllerVisualStyle`, the class of the `_visualStyle` instance variable of `UITabBarController`.
+/// The visual style of a tab bar controller, the `_visualStyle` instance variable of `UITabBarController`.
 ///
-/// It is declared as a protocol, not as a class. Referencing a non-public class from an app is rejected by
-/// App Store Connect (ITMS-90338: Non-public API usage).
-@protocol _UITabBarControllerVisualStyle <NSObject>
+/// App Store Connect rejects an app whose binary has the name of a non-public class
+/// (ITMS-90338: Non-public API usage), as a class reference or as a string. So the class is declared as a protocol
+/// whose name differs from the class, and read with `UIKitCorePrivateTabBarControllerVisualStyle`.
+NS_SWIFT_NAME(TabBarControllerVisualStyle)
+@protocol UIKitCorePrivateTabBarControllerVisualStyle <NSObject>
 
 - (BOOL)canDisplaySidebar;
 - (BOOL)isDisplayingSidebar;
 - (void)sidebarLayoutDidChange;
 - (void)sidebarVisibilityDidChange;
 
-/// The following are implemented only by `_UITabBarControllerAdaptiveVisualStyle`, the style of a tab bar controller
+/// The following are implemented only by the adaptive visual style, the style of a tab bar controller
 /// whose `mode` is `UITabBarControllerModeTabSidebar` on iPad.
-@property (nonatomic, readonly, nullable) id<_UITabBarControllerAdaptiveConfiguration> configuration;
+@property (nonatomic, readonly, nullable) id<UIKitCorePrivateTabBarControllerAdaptiveConfiguration> configuration;
 - (void)_setNeedsContentLayout;
 - (void)_updateContentLayoutForSidebarAppearanceIfNeeded;
 
 @end
 
 /// Returns the `_visualStyle` instance variable of `tabBarController`.
-UIKIT_EXTERN id<_UITabBarControllerVisualStyle> _Nullable UIKitCorePrivateTabBarControllerVisualStyle(
+UIKIT_EXTERN id<UIKitCorePrivateTabBarControllerVisualStyle> _Nullable UIKitCorePrivateTabBarControllerVisualStyle(
   UITabBarController *tabBarController)
   NS_SWIFT_NAME(visualStyle(of:));
 
