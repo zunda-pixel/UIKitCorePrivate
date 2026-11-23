@@ -8,7 +8,6 @@ permissions:
 jobs:
   build:
     name: iOS build
-    # UIKit is only available on Apple platforms, so this job must run on macOS.
     runs-on: macos-26
     steps:
       - uses: actions/checkout@v7.0.1

@@ -23,7 +23,6 @@ jobs:
         include:
           - language: swift
             build-mode: manual
-            # UIKit is only available on Apple platforms, so Swift must be analyzed on macOS.
             runner: macos-26
           - language: actions
             build-mode: none
