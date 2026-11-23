@@ -24,7 +24,7 @@ jobs:
   lint:
     name: Swift format lint
     runs-on: ubuntu-26.04-arm
-    container: swift:latest
+    container: swift:latest@sha256:e0f67c4120502628d4ced5058df25d334332e21501ae1a0797fd0c0a96486e79
     steps:
       - uses: actions/checkout@v7.0.1
         with:
