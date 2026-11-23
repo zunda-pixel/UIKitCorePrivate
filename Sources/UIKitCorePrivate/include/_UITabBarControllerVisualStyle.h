@@ -9,33 +9,35 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /// The configuration of `_UITabBarControllerAdaptiveVisualStyle`.
-/// `_UITabBarControllerAdaptiveConfiguration` is not exported, so it is declared as a protocol.
 @protocol _UITabBarControllerAdaptiveConfiguration <NSObject>
 
 @property (nonatomic) BOOL supportsOverlaySidebarMode;
 
 @end
 
-/// The class of the `_visualStyle` instance variable of `UITabBarController`.
-/// weak_import: if a future OS removes the class, the app still launches.
-UIKIT_EXTERN __attribute__((weak_import))
-@interface _UITabBarControllerVisualStyle : NSObject
+/// `_UITabBarControllerVisualStyle`, the class of the `_visualStyle` instance variable of `UITabBarController`.
+///
+/// It is declared as a protocol, not as a class. Referencing a non-public class from an app is rejected by
+/// App Store Connect (ITMS-90338: Non-public API usage).
+@protocol _UITabBarControllerVisualStyle <NSObject>
 
 - (BOOL)canDisplaySidebar;
 - (BOOL)isDisplayingSidebar;
 - (void)sidebarLayoutDidChange;
 - (void)sidebarVisibilityDidChange;
 
-@end
-
-/// Implemented only by `_UITabBarControllerAdaptiveVisualStyle` (a subclass that is not exported).
-@interface _UITabBarControllerVisualStyle (_UITabBarControllerAdaptiveVisualStyle)
-
+/// The following are implemented only by `_UITabBarControllerAdaptiveVisualStyle`, the style of a tab bar controller
+/// whose `mode` is `UITabBarControllerModeTabSidebar` on iPad.
 @property (nonatomic, readonly, nullable) id<_UITabBarControllerAdaptiveConfiguration> configuration;
 - (void)_setNeedsContentLayout;
 - (void)_updateContentLayoutForSidebarAppearanceIfNeeded;
 
 @end
+
+/// Returns the `_visualStyle` instance variable of `tabBarController`.
+UIKIT_EXTERN id<_UITabBarControllerVisualStyle> _Nullable UIKitCorePrivateTabBarControllerVisualStyle(
+  UITabBarController *tabBarController)
+  NS_SWIFT_NAME(visualStyle(of:));
 
 NS_ASSUME_NONNULL_END
 
