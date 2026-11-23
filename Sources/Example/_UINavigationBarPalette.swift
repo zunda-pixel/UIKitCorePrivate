@@ -1,5 +1,5 @@
-import UIKitCorePrivate
 import SwiftUI
+import UIKitCorePrivate
 
 // Not work: _UINavigationBarPalette.pinned
 // Same: UINavigationController.attachPalette() == set _UINavigationBarPalette._bottomPalette
@@ -25,7 +25,7 @@ import SwiftUI
 @available(iOS 18.0, *)
 #Preview("Bottom & Top Palette") {
   let vc = DummyCollectionViewController()
-  
+
   let topPalette = _UINavigationBarPalette(contentView: DummySegmentControl())!
   topPalette.preferredHeight = 44
   vc.navigationItem._topPalette = topPalette
@@ -33,7 +33,7 @@ import SwiftUI
   let bottomPalette = _UINavigationBarPalette(contentView: DummySegmentControl())!
   bottomPalette.preferredHeight = 44
   vc.navigationItem._bottomPalette = bottomPalette
-  
+
   return UINavigationController(rootViewController: vc)
 }
 
@@ -44,7 +44,7 @@ import SwiftUI
   label.text = "This is a long long long long long long long long long label"
   label.textColor = .white
   label.backgroundColor = .red
-  
+
   let palette = _UINavigationBarPalette(contentView: label)!
   palette.preferredHeight = 44
   palette.minimumHeight = 0
@@ -86,7 +86,7 @@ import SwiftUI
     palette.preferredHeight = 44
     let navigationController = UINavigationController(rootViewController: vc)
     navigationController.attachPalette(palette, isPinned: true)
-    
+
     return navigationController
   }()
 }
