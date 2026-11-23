@@ -10,7 +10,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 /// Methods of `UIKit._UIScrollAwayInteraction`, the interaction that minimizes a bar (the tab bar) while scrolling.
 /// The class is written in Swift and has no Objective-C class symbol, so its methods are declared on NSObject.
-/// Check the class name and respondsToSelector: before calling.
+/// Other objects do not implement them.
 @interface NSObject (_UIScrollAwayInteraction)
 
 - (void)_observeScrollViewWillBeginDragging:(UIScrollView *)scrollView;

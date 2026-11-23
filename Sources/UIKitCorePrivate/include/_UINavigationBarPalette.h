@@ -13,7 +13,7 @@
 #include "_UIPointerInteractionAssistant.h"
 #include "_UIScrollPocketInteraction.h"
 
-// weak_import: if a future OS removes the class, the app still launches. Check NSClassFromString before use.
+// weak_import: if a future OS removes the class, the app still launches.
 UIKIT_EXTERN API_AVAILABLE(ios(13.4)) __attribute__((weak_import))
 @interface _UINavigationBarPalette : UIView <UIPointerInteractionDelegate, _UINavigationBarLayoutParticipating> {
 }
