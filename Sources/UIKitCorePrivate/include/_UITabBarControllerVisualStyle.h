@@ -17,7 +17,7 @@ NS_ASSUME_NONNULL_BEGIN
 @end
 
 /// The class of the `_visualStyle` instance variable of `UITabBarController`.
-/// weak_import: if a future OS removes the class, the app still launches. Check NSClassFromString before use.
+/// weak_import: if a future OS removes the class, the app still launches.
 UIKIT_EXTERN __attribute__((weak_import))
 @interface _UITabBarControllerVisualStyle : NSObject
 
@@ -29,7 +29,6 @@ UIKIT_EXTERN __attribute__((weak_import))
 @end
 
 /// Implemented only by `_UITabBarControllerAdaptiveVisualStyle` (a subclass that is not exported).
-/// Check respondsToSelector: before calling.
 @interface _UITabBarControllerVisualStyle (_UITabBarControllerAdaptiveVisualStyle)
 
 @property (nonatomic, readonly, nullable) id<_UITabBarControllerAdaptiveConfiguration> configuration;

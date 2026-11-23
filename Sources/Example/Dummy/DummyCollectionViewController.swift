@@ -33,7 +33,7 @@ final class DummyCollectionViewController: UICollectionViewController {
   }
 
   private func makeCollectionLayout() -> UICollectionViewLayout {
-    // 標準で用意されているLayoutを使用
+    // Use the standard list layout.
     let listConfig = UICollectionLayoutListConfiguration(appearance: .insetGrouped)
     let layout: UICollectionViewCompositionalLayout = .list(using: listConfig)
     return layout
@@ -45,7 +45,7 @@ final class DummyCollectionViewController: UICollectionViewController {
       contentConfig.text = item.title
       cell.contentConfiguration = contentConfig
 
-      // 選択したときに背景色が変わってしまうのを固定にして対応
+      // Keep the background color fixed so that it does not change when the cell is selected.
       var backgroundConfiguration: UIBackgroundConfiguration = .listCell()
       backgroundConfiguration.backgroundColorTransformer = .init({ _ in
         return .secondarySystemGroupedBackground
@@ -55,7 +55,7 @@ final class DummyCollectionViewController: UICollectionViewController {
   }
 
   private func makeDataSource(for collectionView: UICollectionView) -> DataSource {
-    // 各セルに渡されるitem(SettingItem)を使ってUICollectionViewListCellを設定
+    // Configure the UICollectionViewListCell with the item passed to each cell.
     let cellRegistration = makeCellRegistration()
 
     let dataSource = DataSource(collectionView: collectionView) {
