@@ -7,7 +7,7 @@ import UIKitCorePrivate
 @available(iOS 18.0, *)
 #Preview("Bottom Palette") {
   let vc = DummyCollectionViewController()
-  let palette = _UINavigationBarPalette(contentView: DummySegmentControl())!
+  let palette = makeNavigationBarPalette(contentView: DummySegmentControl())!
   palette.preferredHeight = 44
   vc.navigationItem._bottomPalette = palette
   return UINavigationController(rootViewController: vc)
@@ -16,7 +16,7 @@ import UIKitCorePrivate
 @available(iOS 18.0, *)
 #Preview("Top Palette") {
   let vc = DummyCollectionViewController()
-  let palette = _UINavigationBarPalette(contentView: DummySegmentControl())!
+  let palette = makeNavigationBarPalette(contentView: DummySegmentControl())!
   palette.preferredHeight = 44
   vc.navigationItem._topPalette = palette
   return UINavigationController(rootViewController: vc)
@@ -26,11 +26,11 @@ import UIKitCorePrivate
 #Preview("Bottom & Top Palette") {
   let vc = DummyCollectionViewController()
 
-  let topPalette = _UINavigationBarPalette(contentView: DummySegmentControl())!
+  let topPalette = makeNavigationBarPalette(contentView: DummySegmentControl())!
   topPalette.preferredHeight = 44
   vc.navigationItem._topPalette = topPalette
 
-  let bottomPalette = _UINavigationBarPalette(contentView: DummySegmentControl())!
+  let bottomPalette = makeNavigationBarPalette(contentView: DummySegmentControl())!
   bottomPalette.preferredHeight = 44
   vc.navigationItem._bottomPalette = bottomPalette
 
@@ -45,7 +45,7 @@ import UIKitCorePrivate
   label.textColor = .white
   label.backgroundColor = .red
 
-  let palette = _UINavigationBarPalette(contentView: label)!
+  let palette = makeNavigationBarPalette(contentView: label)!
   palette.preferredHeight = 44
   palette.minimumHeight = 0
   vc.navigationItem._bottomPalette = palette
@@ -58,7 +58,7 @@ import UIKitCorePrivate
   vc.collectionView.contentInset.top = 10
   vc.navigationItem.searchController = UISearchController(searchResultsController: nil)
   vc.navigationItem.preferredSearchBarPlacement = .stacked
-  let palette = _UINavigationBarPalette(contentView: DummySegmentControl())!
+  let palette = makeNavigationBarPalette(contentView: DummySegmentControl())!
   palette.preferredHeight = 44
   vc.navigationItem._bottomPalette = palette
   return UINavigationController(rootViewController: vc)
@@ -70,7 +70,7 @@ import UIKitCorePrivate
 //  vc.collectionView.contentInset.top = 5
 //  vc.navigationItem.searchController = UISearchController(searchResultsController: nil)
 //  vc.navigationItem.preferredSearchBarPlacement = .stacked
-//  let palette = _UINavigationBarPalette(contentView: DummySegmentControl())!
+//  let palette = makeNavigationBarPalette(contentView: DummySegmentControl())!
 //  palette.preferredHeight = 44
 ////  palette._displaysWhenSearchActive = false
 //  vc.navigationItem._bottomPalette = palette
@@ -82,7 +82,7 @@ import UIKitCorePrivate
 #Preview("NavigationBar.attachPalette") {
   {
     let vc = DummyCollectionViewController()
-    let palette = _UINavigationBarPalette(contentView: DummySegmentControl())!
+    let palette = makeNavigationBarPalette(contentView: DummySegmentControl())!
     palette.preferredHeight = 44
     let navigationController = UINavigationController(rootViewController: vc)
     navigationController.attachPalette(palette, isPinned: true)

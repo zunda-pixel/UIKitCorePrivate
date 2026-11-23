@@ -6,7 +6,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface UINavigationController (UIViewController)
 
-- (void)attachPalette:(id)palette isPinned:(_Bool)pinned;
+- (void)attachPalette:(UIView<UIKitCorePrivateNavigationBarPalette> *)palette isPinned:(BOOL)pinned;
 
 @end
 
