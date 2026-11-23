@@ -4,3 +4,4 @@
 #import "UINavigationController.h"
 #import "_UITabBarControllerVisualStyle.h"
 #import "_UIScrollAwayInteraction.h"
+#import "UIScrollView.h"
