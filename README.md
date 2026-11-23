@@ -8,7 +8,7 @@ Swift Package that exposes private UIKit (UIKitCore) declarations, such as the n
 App Store Connect rejects an app whose binary has the name of a non-public class, as a class reference or as a string (ITMS-90338: Non-public API usage). So non-public classes are not declared with `@interface`:
 
 - A class is declared as a protocol whose name differs from the class (`NavigationBarPalette`, `TabBarControllerVisualStyle`).
-- An instance is created or read by a function that looks up the class or the instance variable at runtime (`makeNavigationBarPalette(contentView:)`, `visualStyle(of:)`). A class name is joined from parts at runtime.
+- An instance is created or read by a function that looks up the class or the instance variable at runtime (`makeNavigationBarPalette(contentView:)`, `visualStyle(of:)`). A class name is written in Base64, with the name in a comment next to it.
 - Methods of public classes are declared in categories.
 
 ## Installation

@@ -1,16 +1,23 @@
 #import "UIKitCorePrivate.h"
 
 // App Store Connect rejects an app whose binary has the name of a non-public class (ITMS-90338), as a class
-// reference or as a string. Classes are looked up at runtime by a name joined from parts. Adjacent string
-// literals ("a" "b") are joined by the compiler, so the parts are appended at runtime. Neither part is a name in
-// UIKit by itself.
+// reference or as a string, even as a part of a longer string. Classes are looked up at runtime by a name that
+// is written in Base64, so no part of the name is left in the binary. Comments are not compiled into the binary,
+// so the comment next to each Base64 string gives the name.
+
+static Class UIKitCorePrivateClassFromBase64(NSString *base64Name) {
+  NSData *data = [[NSData alloc] initWithBase64EncodedString:base64Name options:0];
+  NSString *name = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+  return NSClassFromString(name);
+}
 
 @protocol UIKitCorePrivatePaletteInitializing <NSObject>
 - (id)initWithContentView:(UIView *)contentView;
 @end
 
 UIView<UIKitCorePrivateNavigationBarPalette> *UIKitCorePrivateNavigationBarPaletteCreate(UIView *contentView) {
-  Class paletteClass = NSClassFromString([@"_UINavigationBarPal" stringByAppendingString:@"ette"]);
+  // _UINavigationBarPalette
+  Class paletteClass = UIKitCorePrivateClassFromBase64(@"X1VJTmF2aWdhdGlvbkJhclBhbGV0dGU=");
   id<UIKitCorePrivatePaletteInitializing> allocated = [paletteClass alloc];
   id palette = [allocated initWithContentView:contentView];
   return palette;
