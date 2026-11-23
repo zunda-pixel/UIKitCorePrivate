@@ -1,0 +1,32 @@
+name: CI
+
+on: pull_request
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: iOS build
+    # UIKit is only available on Apple platforms, so this job must run on macOS.
+    runs-on: macos-26
+    steps:
+      - uses: actions/checkout@v7.0.1
+        with:
+          persist-credentials: false
+      - run: xcodebuild -version
+      - name: Build
+        run: |
+          xcodebuild build \
+            -scheme UIKitCorePrivate-Package \
+            -destination 'generic/platform=iOS Simulator' \
+            -skipPackagePluginValidation
+  lint:
+    name: Swift format lint
+    runs-on: ubuntu-26.04-arm
+    container: swift:latest
+    steps:
+      - uses: actions/checkout@v7.0.1
+        with:
+          persist-credentials: false
+      - run: swift format lint -r -p -s .
