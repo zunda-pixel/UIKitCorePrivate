@@ -26,3 +26,14 @@ UIView<UIKitCorePrivateNavigationBarPalette> *UIKitCorePrivateNavigationBarPalet
 id<UIKitCorePrivateTabBarControllerVisualStyle> UIKitCorePrivateTabBarControllerVisualStyle(UITabBarController *tabBarController) {
   return [tabBarController valueForKey:@"_visualStyle"];
 }
+
+@protocol UIKitCorePrivateGlassMaterialInitializing <UIKitCorePrivateGlassMaterial>
+- (id)initWithVariant:(NSInteger)variant;
+@end
+
+id<UIKitCorePrivateGlassMaterial> UIKitCorePrivateGlassMaterialCreate(NSInteger variant) {
+  // _UIViewGlass
+  Class glassClass = UIKitCorePrivateClassFromBase64(@"X1VJVmlld0dsYXNz");
+  id<UIKitCorePrivateGlassMaterialInitializing> allocated = [glassClass alloc];
+  return [allocated initWithVariant:variant];
+}
