@@ -6,3 +6,4 @@
 #import "_UIScrollAwayInteraction.h"
 #import "UIScrollView.h"
 #import "UIViewGlass.h"
+#import "UISplitViewController.h"
