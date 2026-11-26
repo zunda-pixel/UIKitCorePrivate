@@ -3,7 +3,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 @interface UIKitCorePrivateSourceMenuButton : UIButton
-@property(nonatomic, weak, nullable) UIView *accessibilityReferenceView;
+@property(nonatomic) CGFloat menuVerticalGap;
 @end
 
 UIKitCorePrivateSourceMenuButton *UIKitCorePrivateSourceMenuButtonCreate(void)
