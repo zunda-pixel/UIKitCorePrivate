@@ -2,7 +2,11 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-UIButton *UIKitCorePrivateSourceMenuButtonCreate(void)
+@interface UIKitCorePrivateSourceMenuButton : UIButton
+@property(nonatomic) CGFloat menuVerticalGap;
+@end
+
+UIKitCorePrivateSourceMenuButton *UIKitCorePrivateSourceMenuButtonCreate(void)
   NS_SWIFT_NAME(makeSourceMenuButton());
 
 NS_ASSUME_NONNULL_END

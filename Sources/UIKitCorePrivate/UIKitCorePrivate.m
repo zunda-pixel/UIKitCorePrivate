@@ -45,12 +45,28 @@ id<UIKitCorePrivateGlassMaterial> UIKitCorePrivateGlassMaterialCreate(NSInteger 
 @interface UIButton (UIKitCorePrivateContextMenuStyle)
 - (id<UIKitCorePrivateContextMenuStyle>)_contextMenuInteraction:(UIContextMenuInteraction *)interaction
                                  styleForMenuWithConfiguration:(UIContextMenuConfiguration *)configuration;
+- (UIView *)_morphView;
 @end
 
-@interface UIKitCorePrivateSourceMenuButton : UIButton
+@interface UIKitCorePrivateSourceMenuButton ()
+@property(nonatomic, strong) UIView *menuSourceView;
 @end
 
 @implementation UIKitCorePrivateSourceMenuButton
+
+- (UIView *)_morphView {
+  if (self.menuVerticalGap <= 0 || !self.menu) {
+    return [super _morphView];
+  }
+  if (!self.menuSourceView) {
+    self.menuSourceView = [UIView new];
+    self.menuSourceView.userInteractionEnabled = NO;
+    self.menuSourceView.accessibilityElementsHidden = YES;
+    [self addSubview:self.menuSourceView];
+  }
+  self.menuSourceView.frame = CGRectInset(self.bounds, 0, -self.menuVerticalGap);
+  return self.menuSourceView;
+}
 
 - (id<UIKitCorePrivateContextMenuStyle>)_contextMenuInteraction:(UIContextMenuInteraction *)interaction
                                  styleForMenuWithConfiguration:(UIContextMenuConfiguration *)configuration {
@@ -62,8 +78,8 @@ id<UIKitCorePrivateGlassMaterial> UIKitCorePrivateGlassMaterialCreate(NSInteger 
 
 @end
 
-UIButton *UIKitCorePrivateSourceMenuButtonCreate(void) {
-  UIButton *button = [UIKitCorePrivateSourceMenuButton buttonWithType:UIButtonTypeSystem];
+UIKitCorePrivateSourceMenuButton *UIKitCorePrivateSourceMenuButtonCreate(void) {
+  UIKitCorePrivateSourceMenuButton *button = [UIKitCorePrivateSourceMenuButton buttonWithType:UIButtonTypeSystem];
   button.showsMenuFromSource = YES;
   return button;
 }
