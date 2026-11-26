@@ -62,8 +62,8 @@ id<UIKitCorePrivateGlassMaterial> UIKitCorePrivateGlassMaterialCreate(NSInteger 
 
 @end
 
-UIButton *UIKitCorePrivateSourceMenuButtonCreate(UIButtonConfiguration *configuration) {
-  UIButton *button = [UIKitCorePrivateSourceMenuButton buttonWithConfiguration:configuration primaryAction:nil];
+UIButton *UIKitCorePrivateSourceMenuButtonCreate(void) {
+  UIButton *button = [UIKitCorePrivateSourceMenuButton buttonWithType:UIButtonTypeSystem];
   button.showsMenuFromSource = YES;
   return button;
 }
