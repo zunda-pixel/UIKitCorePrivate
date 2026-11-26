@@ -37,3 +37,33 @@ id<UIKitCorePrivateGlassMaterial> UIKitCorePrivateGlassMaterialCreate(NSInteger 
   id<UIKitCorePrivateGlassMaterialInitializing> allocated = [glassClass alloc];
   return [allocated initWithVariant:variant];
 }
+
+@protocol UIKitCorePrivateContextMenuStyle <NSObject>
+@property (nonatomic) BOOL shouldMenuOverlapSourcePreview;
+@end
+
+@interface UIButton (UIKitCorePrivateContextMenuStyle)
+- (id<UIKitCorePrivateContextMenuStyle>)_contextMenuInteraction:(UIContextMenuInteraction *)interaction
+                                 styleForMenuWithConfiguration:(UIContextMenuConfiguration *)configuration;
+@end
+
+@interface UIKitCorePrivateSourceMenuButton : UIButton
+@end
+
+@implementation UIKitCorePrivateSourceMenuButton
+
+- (id<UIKitCorePrivateContextMenuStyle>)_contextMenuInteraction:(UIContextMenuInteraction *)interaction
+                                 styleForMenuWithConfiguration:(UIContextMenuConfiguration *)configuration {
+  id<UIKitCorePrivateContextMenuStyle> style = [super _contextMenuInteraction:interaction
+                                                 styleForMenuWithConfiguration:configuration];
+  style.shouldMenuOverlapSourcePreview = NO;
+  return style;
+}
+
+@end
+
+UIButton *UIKitCorePrivateSourceMenuButtonCreate(void) {
+  UIButton *button = [UIKitCorePrivateSourceMenuButton buttonWithType:UIButtonTypeSystem];
+  button.showsMenuFromSource = YES;
+  return button;
+}
