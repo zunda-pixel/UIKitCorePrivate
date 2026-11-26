@@ -7,3 +7,4 @@
 #import "UIScrollView.h"
 #import "UIViewGlass.h"
 #import "UISplitViewController.h"
+#import "UIControl.h"
