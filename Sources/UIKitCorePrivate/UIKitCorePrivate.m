@@ -47,10 +47,12 @@ id<UIKitCorePrivateGlassMaterial> UIKitCorePrivateGlassMaterialCreate(NSInteger 
                                  styleForMenuWithConfiguration:(UIContextMenuConfiguration *)configuration;
 @end
 
-@interface UIKitCorePrivateSourceMenuButton : UIButton
-@end
-
 @implementation UIKitCorePrivateSourceMenuButton
+
+- (CGRect)accessibilityFrame {
+  UIView *view = self.accessibilityReferenceView;
+  return view ? view.accessibilityFrame : [super accessibilityFrame];
+}
 
 - (id<UIKitCorePrivateContextMenuStyle>)_contextMenuInteraction:(UIContextMenuInteraction *)interaction
                                  styleForMenuWithConfiguration:(UIContextMenuConfiguration *)configuration {
@@ -62,8 +64,8 @@ id<UIKitCorePrivateGlassMaterial> UIKitCorePrivateGlassMaterialCreate(NSInteger 
 
 @end
 
-UIButton *UIKitCorePrivateSourceMenuButtonCreate(void) {
-  UIButton *button = [UIKitCorePrivateSourceMenuButton buttonWithType:UIButtonTypeSystem];
+UIKitCorePrivateSourceMenuButton *UIKitCorePrivateSourceMenuButtonCreate(void) {
+  UIKitCorePrivateSourceMenuButton *button = [UIKitCorePrivateSourceMenuButton buttonWithType:UIButtonTypeSystem];
   button.showsMenuFromSource = YES;
   return button;
 }
