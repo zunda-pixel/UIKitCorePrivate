@@ -145,10 +145,25 @@ id UIKitCorePrivateMakeEmptyHighlightEffect(UITargetedPreview *preview) {
   return [effectClass effectWithPreview:preview continuingFromPreview:preview];
 }
 
-@protocol UIKitCorePrivatePrimaryMenuPreview <NSObject>
-- (void)set_primarySourcePreview:(UITargetedPreview *)preview;
+@protocol UIKitCorePrivatePreviewMenuController <NSObject>
+- (UIView *)contentPlatterView;
 @end
 
-void UIKitCorePrivateSetPrimaryMenuPreview(UIContextMenuConfiguration *configuration, UITargetedPreview *preview) {
-  [(id<UIKitCorePrivatePrimaryMenuPreview>)configuration set_primarySourcePreview:preview];
+@protocol UIKitCorePrivatePreviewPresentation <NSObject>
+- (UIContextMenuConfiguration *)menuConfiguration;
+- (id<UIKitCorePrivatePreviewMenuController>)uiController;
+@end
+
+@protocol UIKitCorePrivatePreviewInteraction <NSObject>
+- (NSDictionary<id<NSCopying>, id<UIKitCorePrivatePreviewPresentation>> *)presentationsByIdentifier;
+@end
+
+UIView *UIKitCorePrivateContextMenuPreviewPlatter(UIContextMenuInteraction *interaction, UIContextMenuConfiguration *configuration) {
+  id<UIKitCorePrivatePreviewInteraction> previewInteraction = (id)interaction;
+  for (id<UIKitCorePrivatePreviewPresentation> presentation in [previewInteraction presentationsByIdentifier].allValues) {
+    if ([(NSObject *)[[presentation menuConfiguration] identifier] isEqual:configuration.identifier]) {
+      return [[presentation uiController] contentPlatterView];
+    }
+  }
+  return nil;
 }
