@@ -1,5 +1,6 @@
 #import "UIKitCorePrivate.h"
 #import <objc/runtime.h>
+#import <objc/message.h>
 
 // App Store Connect rejects an app whose binary has the name of a non-public class (ITMS-90338), as a class
 // reference or as a string, even as a part of a longer string. Classes are looked up at runtime by a name that
@@ -523,6 +524,17 @@ static void TranscriptMenuWillEnd(
   [delegate collectionView:view willEndContextMenuInteractionWithConfiguration:configuration animator:animator];
 }
 
+static void TranscriptPresentHostedController(
+  UIViewController *controller, SEL command, UIViewController *presented, BOOL animated, void (^completion)(void)
+) {
+  if (!presented) return;
+  Class transcriptClass = class_getSuperclass(object_getClass(controller));
+  struct objc_super host = { controller, class_getSuperclass(transcriptClass) };
+  ((void (*)(struct objc_super *, SEL, UIViewController *, BOOL, void (^)(void)))objc_msgSendSuper)(
+    &host, command, presented, animated, completion
+  );
+}
+
 static void TranscriptWillDisplay(id controller, SEL command, UICollectionView *view, UICollectionViewCell *cell, NSIndexPath *path) {}
 
 // The hosted data source configures its cells. ChatKit's width invalidation can
@@ -600,6 +612,9 @@ UIViewController<UIKitCorePrivateTranscriptHosting> *UIKitCorePrivateTranscriptC
     class_addMethod(controllerClass, @selector(setHostedDelegate:), (IMP)TranscriptSetHostedDelegate, "v@:@");
     class_addMethod(controllerClass, @selector(scrollViewDidScroll:), (IMP)TranscriptDidScroll, "v@:@");
     class_addMethod(controllerClass, @selector(scrollViewShouldScrollToTop:), (IMP)TranscriptShouldScrollToTop, "B@:@");
+    SEL present = @selector(presentViewController:animated:completion:);
+    class_addMethod(controllerClass, present, (IMP)TranscriptPresentHostedController,
+      method_getTypeEncoding(class_getInstanceMethod(base, present)));
     SEL menuConfiguration = @selector(collectionView:contextMenuConfigurationForItemsAtIndexPaths:point:);
     SEL menuHighlight = @selector(collectionView:contextMenuConfiguration:highlightPreviewForItemAtIndexPath:);
     SEL menuDismissal = @selector(collectionView:contextMenuConfiguration:dismissalPreviewForItemAtIndexPath:);
