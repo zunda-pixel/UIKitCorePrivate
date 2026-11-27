@@ -525,7 +525,9 @@ static id TranscriptMenuStyle(
     if (trailing) {
       UIKitCorePrivateMenuAlignment alignment = trailing.boolValue
         ? UIKitCorePrivateMenuAlignmentTrailing : UIKitCorePrivateMenuAlignmentLeading;
-      style._preferredAnchor = (UIKitCorePrivateMenuAnchor){UIKitCorePrivateMenuAttachmentBottom, alignment, 0, 0, 0};
+      style._preferredAnchor = (UIKitCorePrivateMenuAnchor){
+        UIKitCorePrivateMenuAttachmentBottom, alignment, 0, trailing.boolValue ? 0 : 6, 0
+      };
     }
   }
   return style;
