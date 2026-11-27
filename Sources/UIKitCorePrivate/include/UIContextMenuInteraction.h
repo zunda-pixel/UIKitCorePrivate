@@ -19,10 +19,21 @@ NS_SWIFT_NAME(ContextMenuStyle)
 UIKIT_EXTERN id<UIKitCorePrivateContextMenuStyle> UIKitCorePrivateContextMenuStyleCreate(void)
   NS_SWIFT_NAME(makeContextMenuStyle());
 
+UIKIT_EXTERN id UIKitCorePrivateMakeEmptyHighlightEffect(UITargetedPreview *preview)
+  NS_SWIFT_NAME(makeEmptyContextMenuHighlightEffect(_:));
+
+UIKIT_EXTERN void UIKitCorePrivateSetContextMenuPreviewOutline(UIView *view, UIBezierPath *outline)
+  NS_SWIFT_NAME(setContextMenuPreviewOutline(_:outline:));
+
 @protocol UIKitCorePrivateContextMenuInteractionDelegate <UIContextMenuInteractionDelegate>
 - (id<UIKitCorePrivateContextMenuStyle>)_contextMenuInteraction:(UIContextMenuInteraction *)interaction
                                  styleForMenuWithConfiguration:(UIContextMenuConfiguration *)configuration
   NS_SWIFT_NAME(contextMenuInteraction(_:styleForMenuWith:));
+@optional
+- (nullable id)_contextMenuInteraction:(UIContextMenuInteraction *)interaction
+                          configuration:(UIContextMenuConfiguration *)configuration
+    interactionEffectForTargetedPreview:(UITargetedPreview *)preview
+  NS_SWIFT_NAME(contextMenuInteraction(_:configuration:interactionEffectFor:));
 @end
 
 NS_ASSUME_NONNULL_END
