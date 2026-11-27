@@ -14,6 +14,9 @@ UIKIT_EXTERN void UIKitCorePrivateChatBalloonConfigure(UIView *view, BOOL outgoi
 UIKIT_EXTERN void UIKitCorePrivateChatBalloonPrepare(UIView *view)
   NS_SWIFT_NAME(prepareChatBalloon(_:));
 
+UIKIT_EXTERN UIBezierPath * _Nullable UIKitCorePrivateChatBalloonPreviewPath(UIView *view)
+  NS_SWIFT_NAME(chatBalloonPreviewPath(_:));
+
 NS_ASSUME_NONNULL_END
 
 #endif
