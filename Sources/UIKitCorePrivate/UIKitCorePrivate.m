@@ -154,6 +154,11 @@ id<UIKitCorePrivateBalloonSwipeHandling> UIKitCorePrivateBalloonSwipeCreate(
     balloonMaxWidth:(CGFloat)width marginInsets:(UIEdgeInsets)insets collectionViewSize:(CGSize)size;
 @end
 
+@protocol UIKitCorePrivateTranscriptLayout <NSObject>
+- (void)setDisableRotisserieScroll:(BOOL)disabled;
+- (void)setDisableDynamicsWhileScrolling:(BOOL)disabled;
+@end
+
 @protocol UIKitCorePrivateTranscriptScrolling <NSObject>
 - (void)beginDisablingTranscriptDynamicsForReason:(NSInteger)reason;
 - (void)endDisablingTranscriptDynamicsForReason:(NSInteger)reason;
@@ -278,8 +283,14 @@ UIViewController<UIKitCorePrivateTranscriptHosting> *UIKitCorePrivateTranscriptC
   });
   if (!controllerClass) return nil;
   id conversation = [(id<UIKitCorePrivateTranscriptInitializing>)[conversationClass alloc] initWithChat:nil];
-  return (UIViewController<UIKitCorePrivateTranscriptHosting> *)[(id<UIKitCorePrivateTranscriptInitializing>)[controllerClass alloc]
-    initWithConversation:conversation delegate:nil balloonMaxWidth:0 marginInsets:UIEdgeInsetsZero collectionViewSize:CGSizeZero];
+  UIViewController<UIKitCorePrivateTranscriptHosting> *controller =
+    (UIViewController<UIKitCorePrivateTranscriptHosting> *)[(id<UIKitCorePrivateTranscriptInitializing>)[controllerClass alloc]
+      initWithConversation:conversation delegate:nil balloonMaxWidth:0 marginInsets:UIEdgeInsetsZero collectionViewSize:CGSizeZero];
+  [controller loadViewIfNeeded];
+  id<UIKitCorePrivateTranscriptLayout> layout = (id)controller.collectionView.collectionViewLayout;
+  [layout setDisableRotisserieScroll:YES];
+  [layout setDisableDynamicsWhileScrolling:YES];
+  return controller;
 }
 
 void UIKitCorePrivateTranscriptUpdateOffset(UICollectionView *collectionView, void (^updates)(void)) {
