@@ -357,6 +357,11 @@ static BOOL TapbackItemCanSend(id item, SEL command) { return YES; }
 static int8_t TapbackItemServiceColor(id item, SEL command) { return 2; }
 static char TapbackDelegateKey;
 
+void UIKitCorePrivateEnableContextMenuAccessories(id delegate) {
+  class_addProtocol(object_getClass(delegate), objc_getProtocol("UIContextMenuInteractionDelegate_Private"));
+}
+
+
 UIView *UIKitCorePrivateTapbackAccessoryCreate(
   NSString *identifier, BOOL outgoing, CGRect layoutBounds, void (^selected)(NSString *)
 ) {
