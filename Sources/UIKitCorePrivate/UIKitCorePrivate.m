@@ -161,7 +161,7 @@ id UIKitCorePrivateMakeEmptyHighlightEffect(UITargetedPreview *preview) {
 UIView *UIKitCorePrivateContextMenuPreviewPlatter(UIContextMenuInteraction *interaction, UIContextMenuConfiguration *configuration) {
   id<UIKitCorePrivatePreviewInteraction> previewInteraction = (id)interaction;
   for (id<UIKitCorePrivatePreviewPresentation> presentation in [previewInteraction presentationsByIdentifier].allValues) {
-    if ([[[presentation menuConfiguration] identifier] isEqual:configuration.identifier]) {
+    if ([(NSObject *)[[presentation menuConfiguration] identifier] isEqual:configuration.identifier]) {
       return [[presentation uiController] contentPlatterView];
     }
   }
