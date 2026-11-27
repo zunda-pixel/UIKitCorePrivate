@@ -142,28 +142,5 @@ id UIKitCorePrivateMakeEmptyHighlightEffect(UITargetedPreview *preview) {
   // _UINullClickHighlightEffect
   Class<UIKitCorePrivateHighlightEffectFactory> effectClass =
       UIKitCorePrivateClassFromBase64(@"X1VJTnVsbENsaWNrSGlnaGxpZ2h0RWZmZWN0");
-  return [effectClass effectWithPreview:preview continuingFromPreview:nil];
-}
-
-@protocol UIKitCorePrivatePreviewMenuController <NSObject>
-- (UIView *)contentPlatterView;
-@end
-
-@protocol UIKitCorePrivatePreviewPresentation <NSObject>
-- (UIContextMenuConfiguration *)menuConfiguration;
-- (id<UIKitCorePrivatePreviewMenuController>)uiController;
-@end
-
-@protocol UIKitCorePrivatePreviewInteraction <NSObject>
-- (NSDictionary<id<NSCopying>, id<UIKitCorePrivatePreviewPresentation>> *)presentationsByIdentifier;
-@end
-
-UIView *UIKitCorePrivateContextMenuPreviewPlatter(UIContextMenuInteraction *interaction, UIContextMenuConfiguration *configuration) {
-  id<UIKitCorePrivatePreviewInteraction> previewInteraction = (id)interaction;
-  for (id<UIKitCorePrivatePreviewPresentation> presentation in [previewInteraction presentationsByIdentifier].allValues) {
-    if ([(NSObject *)[[presentation menuConfiguration] identifier] isEqual:configuration.identifier]) {
-      return [[presentation uiController] contentPlatterView];
-    }
-  }
-  return nil;
+  return [effectClass effectWithPreview:preview continuingFromPreview:preview];
 }
