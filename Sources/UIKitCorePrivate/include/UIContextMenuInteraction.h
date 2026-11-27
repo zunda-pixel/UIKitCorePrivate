@@ -6,7 +6,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 typedef NS_ENUM(NSUInteger, UIKitCorePrivateContextMenuLayout) {
-  UIKitCorePrivateContextMenuLayoutPreviewAndMenu = 1,
+  UIKitCorePrivateContextMenuLayoutAutomatic = 0,
 } NS_SWIFT_NAME(ContextMenuLayout);
 
 // The UIKit runtime class is _UIContextMenuStyle.
