@@ -311,7 +311,7 @@ UIView *UIKitCorePrivateTapbackAccessoryCreate(
 }
 
 void UIKitCorePrivateTapbackAccessorySetVisible(UIView *accessory, BOOL visible) {
-  [(id<UIKitCorePrivateTapbackAccessory>)accessory setVisible:visible animated:NO];
+  [(id<UIKitCorePrivateTapbackAccessory>)accessory setVisible:visible animated:YES];
 }
 
 static char TranscriptDelegateKey;
