@@ -45,6 +45,15 @@ UIKIT_EXTERN id<UIKitCorePrivateBalloonSwipeHandling> _Nullable UIKitCorePrivate
   UICollectionViewCell *cell, void (^completion)(CGFloat, CGPoint), void (^changed)(CGFloat))
   NS_SWIFT_NAME(makeChatBalloonSwipe(_:completion:changed:));
 
+NS_SWIFT_UI_ACTOR
+UIKIT_EXTERN UIView *UIKitCorePrivateTapbackAccessoryCreate(
+  NSString *identifier, BOOL outgoing, CGRect layoutBounds, void (^selected)(NSString *emoji)
+) NS_SWIFT_NAME(makeChatTapbackAccessory(identifier:outgoing:layoutBounds:selected:));
+
+NS_SWIFT_UI_ACTOR
+UIKIT_EXTERN void UIKitCorePrivateTapbackAccessorySetVisible(UIView *accessory, BOOL visible)
+  NS_SWIFT_NAME(setChatTapbackAccessoryVisible(_:visible:));
+
 NS_ASSUME_NONNULL_END
 
 #endif

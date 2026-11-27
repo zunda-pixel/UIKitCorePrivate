@@ -214,6 +214,106 @@ id<UIKitCorePrivateBalloonSwipeHandling> UIKitCorePrivateBalloonSwipeCreate(
 @end
 
 static char TranscriptRowsKey;
+@protocol UIKitCorePrivateTapbackItemInitializing <NSObject>
+- (instancetype)initWithIMChatItem:(id)item maxWidth:(CGFloat)width;
+@end
+
+@protocol UIKitCorePrivateTapbackAccessory <NSObject>
+- (instancetype)init:(id)item layoutBounds:(CGRect)bounds delegate:(id)delegate;
+- (void)setVisible:(BOOL)visible animated:(BOOL)animated;
+@end
+
+@protocol UIKitCorePrivateTapbackValue <NSObject>
+- (NSInteger)associatedMessageType;
+- (NSString *)associatedMessageEmoji;
+@end
+
+@interface UIKitCorePrivateTapbackMessage : NSObject
+@property(nonatomic, copy) NSString *guid;
+@property(nonatomic) BOOL isFromMe;
+@end
+
+@implementation UIKitCorePrivateTapbackMessage
+- (NSString *)GUID { return self.guid; }
+- (NSString *)messageGUID { return self.guid; }
+- (NSString *)uniqueIdentifier { return self.guid; }
+- (NSAttributedString *)text { return [[NSAttributedString alloc] initWithString:@""]; }
+- (id)messageItem { return self; }
+- (id)message { return self; }
+- (id)_imMessageItem { return self; }
+- (id)service { return nil; }
+- (NSString *)serviceName { return @"iMessage"; }
+- (NSInteger)serviceVariant { return 0; }
+- (NSDate *)time { return NSDate.now; }
+- (NSArray *)visibleAssociatedMessageChatItems { return @[]; }
+- (id)messageHighlightChatItem { return nil; }
+- (NSInteger)messagePart { return 0; }
+- (BOOL)isCorrupt { return NO; }
+@end
+
+@interface UIKitCorePrivateTapbackDelegate : NSObject
+@property(nonatomic, strong) id item;
+@property(nonatomic, copy) void (^selected)(NSString *);
+@end
+
+@implementation UIKitCorePrivateTapbackDelegate
+- (id)pickerViewControllerDelegateForAccessoryView { return self; }
+- (id)balloonParentViewDelegateForAccessoryView { return nil; }
+- (NSArray *)contextualCKChatItemsForTapbackPickerViewController:(id)picker { return @[self.item]; }
+- (BOOL)shouldShowStickerSuggestionsFor:(id)picker { return NO; }
+- (void)tapbackPickerViewController:(id)picker didSelectTapback:(id<UIKitCorePrivateTapbackValue>)tapback {
+  NSInteger type = tapback.associatedMessageType;
+  if (type == 2006) {
+    NSString *emoji = tapback.associatedMessageEmoji;
+    if (emoji.length) self.selected(emoji);
+  } else if (type >= 2000 && type <= 2005) {
+    self.selected(@[@"❤️", @"👍", @"👎", @"😂", @"‼️", @"❓"][type - 2000]);
+  }
+}
+- (void)tapbackPickerViewController:(id)picker didDeselectTapback:(id<UIKitCorePrivateTapbackValue>)tapback {
+  [self tapbackPickerViewController:picker didSelectTapback:tapback];
+}
+- (void)tapbackPickerViewControllerDidRequestDismiss:(id)picker {}
+- (void)tapbackPickerViewControllerDidChangePreferredContentSize:(id)picker {}
+@end
+
+static BOOL TapbackItemCanSend(id item, SEL command) { return YES; }
+static int8_t TapbackItemServiceColor(id item, SEL command) { return 2; }
+static char TapbackDelegateKey;
+
+UIView *UIKitCorePrivateTapbackAccessoryCreate(
+  NSString *identifier, BOOL outgoing, CGRect layoutBounds, void (^selected)(NSString *)
+) {
+  static Class itemClass;
+  static Class accessoryClass;
+  static dispatch_once_t onceToken;
+  dispatch_once(&onceToken, ^{
+    dlopen("/System/Library/PrivateFrameworks/ChatKit.framework/ChatKit", RTLD_NOW | RTLD_LOCAL);
+    // CKTextMessagePartChatItem and CKTapbackPickerContainerAccessoryView
+    Class base = UIKitCorePrivateClassFromBase64(@"Q0tUZXh0TWVzc2FnZVBhcnRDaGF0SXRlbQ==");
+    accessoryClass = UIKitCorePrivateClassFromBase64(@"Q0tUYXBiYWNrUGlja2VyQ29udGFpbmVyQWNjZXNzb3J5Vmlldw==");
+    itemClass = objc_allocateClassPair(base, "UIKitCorePrivateTapbackMessagePart", 0);
+    class_addMethod(itemClass, @selector(canSendTapbacks), (IMP)TapbackItemCanSend, "B@:");
+    class_addMethod(itemClass, @selector(serviceColor), (IMP)TapbackItemServiceColor, "c@:");
+    objc_registerClassPair(itemClass);
+  });
+  UIKitCorePrivateTapbackMessage *message = [UIKitCorePrivateTapbackMessage new];
+  message.guid = identifier;
+  message.isFromMe = outgoing;
+  UIKitCorePrivateTapbackDelegate *delegate = [UIKitCorePrivateTapbackDelegate new];
+  delegate.item = [(id<UIKitCorePrivateTapbackItemInitializing>)[itemClass alloc]
+    initWithIMChatItem:message maxWidth:CGRectGetWidth(layoutBounds)];
+  delegate.selected = selected;
+  UIView *accessory = (UIView *)[(id<UIKitCorePrivateTapbackAccessory>)[accessoryClass alloc]
+    init:delegate.item layoutBounds:layoutBounds delegate:delegate];
+  objc_setAssociatedObject(accessory, &TapbackDelegateKey, delegate, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+  return accessory;
+}
+
+void UIKitCorePrivateTapbackAccessorySetVisible(UIView *accessory, BOOL visible) {
+  [(id<UIKitCorePrivateTapbackAccessory>)accessory setVisible:visible animated:NO];
+}
+
 static char TranscriptDelegateKey;
 
 @interface UIKitCorePrivateTranscriptDelegateReference : NSObject
