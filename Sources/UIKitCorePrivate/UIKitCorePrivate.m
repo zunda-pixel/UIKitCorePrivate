@@ -42,7 +42,7 @@ id<UIKitCorePrivateGlassMaterial> UIKitCorePrivateGlassMaterialCreate(NSInteger 
 
 @protocol UIKitCorePrivateContextMenuStyle <NSObject>
 @property (nonatomic) BOOL shouldMenuOverlapSourcePreview;
-@property (nonatomic) BOOL showsAccessoriesForCompactMenu;
+@property (nonatomic) BOOL hasInteractivePreview;
 @end
 
 @interface UIButton (UIKitCorePrivateContextMenuStyle)
@@ -452,18 +452,6 @@ static void TranscriptDidEndDisplaying(id controller, SEL command, UICollectionV
   if ([delegate respondsToSelector:command]) [delegate collectionView:view didEndDisplayingCell:cell forItemAtIndexPath:path];
 }
 
-@protocol UIKitCorePrivateTranscriptMenuDelegate <UICollectionViewDelegate>
-- (NSArray<UIView *> *)chatTranscriptMenuAccessories:(UIContextMenuConfiguration *)configuration;
-@end
-
-typedef struct {
-  NSUInteger attachment;
-  NSUInteger alignment;
-  CGFloat attachmentOffset;
-  CGFloat alignmentOffset;
-  NSInteger gravity;
-} UIKitCorePrivateContextMenuAnchor;
-
 static UIContextMenuConfiguration *TranscriptMenuConfiguration(
   id controller, SEL command, UICollectionView *view, NSArray<NSIndexPath *> *paths, CGPoint point
 ) {
@@ -488,21 +476,12 @@ static UITargetedPreview *TranscriptMenuDismissal(
   return [delegate collectionView:view contextMenuConfiguration:configuration dismissalPreviewForItemAtIndexPath:path];
 }
 
-static NSArray<UIView *> *TranscriptMenuAccessories(
-  id controller, SEL command, UICollectionView *view, UIContextMenuConfiguration *configuration,
-  UIKitCorePrivateContextMenuAnchor anchor
-) {
-  id<UIKitCorePrivateTranscriptMenuDelegate> delegate = (id<UIKitCorePrivateTranscriptMenuDelegate>)TranscriptHostedDelegate(controller, command);
-  if (![delegate respondsToSelector:@selector(chatTranscriptMenuAccessories:)]) return @[];
-  return [delegate chatTranscriptMenuAccessories:configuration];
-}
-
 static id TranscriptMenuStyle(
   id controller, SEL command, UICollectionView *view, UIContextMenuConfiguration *configuration
 ) {
   // _UIContextMenuStyle
   id<UIKitCorePrivateContextMenuStyle> style = [UIKitCorePrivateClassFromBase64(@"X1VJQ29udGV4dE1lbnVTdHlsZQ==") new];
-  style.showsAccessoriesForCompactMenu = YES;
+  style.hasInteractivePreview = YES;
   return style;
 }
 
@@ -620,14 +599,12 @@ UIViewController<UIKitCorePrivateTranscriptHosting> *UIKitCorePrivateTranscriptC
     SEL menuDismissal = @selector(collectionView:contextMenuConfiguration:dismissalPreviewForItemAtIndexPath:);
     SEL menuDisplay = @selector(collectionView:willDisplayContextMenuWithConfiguration:animator:);
     SEL menuEnd = @selector(collectionView:willEndContextMenuInteractionWithConfiguration:animator:);
-    SEL menuAccessories = sel_registerName("_collectionView:accessoriesForContextMenuWithConfiguration:layoutAnchor:");
     SEL menuStyle = sel_registerName("_collectionView:styleForContextMenuWithConfiguration:");
     class_addMethod(controllerClass, menuConfiguration, (IMP)TranscriptMenuConfiguration, method_getTypeEncoding(class_getInstanceMethod(base, menuConfiguration)));
     class_addMethod(controllerClass, menuHighlight, (IMP)TranscriptMenuHighlight, method_getTypeEncoding(class_getInstanceMethod(base, menuHighlight)));
     class_addMethod(controllerClass, menuDismissal, (IMP)TranscriptMenuDismissal, method_getTypeEncoding(class_getInstanceMethod(base, menuDismissal)));
     class_addMethod(controllerClass, menuDisplay, (IMP)TranscriptMenuWillDisplay, method_getTypeEncoding(class_getInstanceMethod(base, menuDisplay)));
     class_addMethod(controllerClass, menuEnd, (IMP)TranscriptMenuWillEnd, method_getTypeEncoding(class_getInstanceMethod(base, menuEnd)));
-    class_addMethod(controllerClass, menuAccessories, (IMP)TranscriptMenuAccessories, method_getTypeEncoding(class_getInstanceMethod(base, menuAccessories)));
     class_addMethod(controllerClass, menuStyle, (IMP)TranscriptMenuStyle, method_getTypeEncoding(class_getInstanceMethod(base, menuStyle)));
     SEL configureCell = @selector(configureCell:forCKChatItem:atIndexPath:animated:animationDuration:animationCurve:);
     class_addMethod(controllerClass, configureCell, (IMP)TranscriptConfigureHostedCell,
