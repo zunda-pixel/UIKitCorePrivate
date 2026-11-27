@@ -16,6 +16,7 @@ UIKIT_EXTERN void UIKitCorePrivateChatBalloonPrepare(UIView *view)
 
 NS_SWIFT_UI_ACTOR
 @protocol UIKitCorePrivateBalloonSwipeHandling <NSObject>
+@property(nonatomic, readonly) UIView *replyIndicator;
 - (void)setBalloonView:(UIView *)view;
 - (void)swipeToReplyGestureHandler:(UIPanGestureRecognizer *)pan;
 - (void)prepareForReuse;
