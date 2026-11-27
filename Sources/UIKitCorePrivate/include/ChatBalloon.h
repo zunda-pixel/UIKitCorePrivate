@@ -45,6 +45,10 @@ UIKIT_EXTERN id<UIKitCorePrivateBalloonSwipeHandling> _Nullable UIKitCorePrivate
   UICollectionViewCell *cell, void (^completion)(CGFloat, CGPoint), void (^changed)(CGFloat))
   NS_SWIFT_NAME(makeChatBalloonSwipe(_:completion:changed:));
 
+@interface UIContextMenuConfiguration (UIKitCorePrivateChatMenu)
+@property(nonatomic) BOOL showsAccessoriesForCompactMenu;
+@end
+
 @interface UIContextMenuInteraction (UIKitCorePrivateChatMenu)
 - (void)_presentMenuAtLocation:(CGPoint)location NS_SWIFT_NAME(presentChatMenu(at:));
 @end
