@@ -467,6 +467,7 @@ static UIContextMenuConfiguration *TranscriptMenuConfiguration(
   id controller, SEL command, UICollectionView *view, NSArray<NSIndexPath *> *paths, CGPoint point
 ) {
   id<UICollectionViewDelegate> delegate = TranscriptHostedDelegate(controller, command);
+  if (![delegate respondsToSelector:command]) return nil;
   return [delegate collectionView:view contextMenuConfigurationForItemsAtIndexPaths:paths point:point];
 }
 
@@ -474,6 +475,7 @@ static UITargetedPreview *TranscriptMenuHighlight(
   id controller, SEL command, UICollectionView *view, UIContextMenuConfiguration *configuration, NSIndexPath *path
 ) {
   id<UICollectionViewDelegate> delegate = TranscriptHostedDelegate(controller, command);
+  if (![delegate respondsToSelector:command]) return nil;
   return [delegate collectionView:view contextMenuConfiguration:configuration highlightPreviewForItemAtIndexPath:path];
 }
 
@@ -481,6 +483,7 @@ static UITargetedPreview *TranscriptMenuDismissal(
   id controller, SEL command, UICollectionView *view, UIContextMenuConfiguration *configuration, NSIndexPath *path
 ) {
   id<UICollectionViewDelegate> delegate = TranscriptHostedDelegate(controller, command);
+  if (![delegate respondsToSelector:command]) return nil;
   return [delegate collectionView:view contextMenuConfiguration:configuration dismissalPreviewForItemAtIndexPath:path];
 }
 
@@ -507,6 +510,7 @@ static void TranscriptMenuWillDisplay(
   id<UIContextMenuInteractionAnimating> animator
 ) {
   id<UICollectionViewDelegate> delegate = TranscriptHostedDelegate(controller, command);
+  if (![delegate respondsToSelector:command]) return;
   [delegate collectionView:view willDisplayContextMenuWithConfiguration:configuration animator:animator];
 }
 
@@ -515,6 +519,7 @@ static void TranscriptMenuWillEnd(
   id<UIContextMenuInteractionAnimating> animator
 ) {
   id<UICollectionViewDelegate> delegate = TranscriptHostedDelegate(controller, command);
+  if (![delegate respondsToSelector:command]) return;
   [delegate collectionView:view willEndContextMenuInteractionWithConfiguration:configuration animator:animator];
 }
 
