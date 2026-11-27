@@ -167,3 +167,13 @@ UIView *UIKitCorePrivateContextMenuPreviewPlatter(UIContextMenuInteraction *inte
   }
   return nil;
 }
+
+@protocol UIKitCorePrivateExpandedPreviewPlatter <NSObject>
+- (UITargetedPreview *)expandedPreview;
+@end
+
+void UIKitCorePrivateSetContextMenuPreviewOutline(UIView *platter, UIBezierPath *outline) {
+  UITargetedPreview *preview = [(id<UIKitCorePrivateExpandedPreviewPlatter>)platter expandedPreview];
+  preview.parameters.visiblePath = outline;
+  preview.parameters.backgroundColor = UIColor.clearColor;
+}

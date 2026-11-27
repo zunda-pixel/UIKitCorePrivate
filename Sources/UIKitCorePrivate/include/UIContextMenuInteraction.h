@@ -25,6 +25,9 @@ UIKIT_EXTERN id UIKitCorePrivateMakeEmptyHighlightEffect(UITargetedPreview *prev
 UIKIT_EXTERN UIView * _Nullable UIKitCorePrivateContextMenuPreviewPlatter(UIContextMenuInteraction *interaction, UIContextMenuConfiguration *configuration)
   NS_SWIFT_NAME(contextMenuPreviewPlatter(_:configuration:));
 
+UIKIT_EXTERN void UIKitCorePrivateSetContextMenuPreviewOutline(UIView *platter, UIBezierPath *outline)
+  NS_SWIFT_NAME(setContextMenuPreviewOutline(_:outline:));
+
 @protocol UIKitCorePrivateContextMenuInteractionDelegate <UIContextMenuInteractionDelegate>
 - (id<UIKitCorePrivateContextMenuStyle>)_contextMenuInteraction:(UIContextMenuInteraction *)interaction
                                  styleForMenuWithConfiguration:(UIContextMenuConfiguration *)configuration
