@@ -62,6 +62,10 @@ NS_SWIFT_UI_ACTOR
 UIKIT_EXTERN UIBlurEffect *UIKitCorePrivateChatBackdropBlur(CGFloat radius)
   NS_SWIFT_NAME(makeChatBackdropBlur(radius:));
 
+NS_SWIFT_UI_ACTOR
+UIKIT_EXTERN CGRect UIKitCorePrivateTapbackStripFrame(UIView *accessory)
+  NS_SWIFT_NAME(chatTapbackStripFrame(_:));
+
 NS_ASSUME_NONNULL_END
 
 #endif

@@ -393,6 +393,12 @@ void UIKitCorePrivateTapbackAccessorySetVisible(UIView *accessory, BOOL visible)
   if (visible) [delegate scheduleRender];
 }
 
+CGRect UIKitCorePrivateTapbackStripFrame(UIView *accessory) {
+  [accessory layoutIfNeeded];
+  UICollectionView *strip = TapbackCollectionInView(accessory);
+  return strip ? [strip convertRect:strip.bounds toView:accessory] : CGRectZero;
+}
+
 void UIKitCorePrivateTapbackAccessoryAlign(UIView *accessory, CGFloat sourceX) {
   id<UIKitCorePrivateTapbackBalloonParent> parent = [(id<UIKitCorePrivateTapbackAccessory>)accessory pickerBalloonParentView];
   id<UIKitCorePrivateTapbackDisplayConfiguration> configuration = parent.displayConfiguration;
