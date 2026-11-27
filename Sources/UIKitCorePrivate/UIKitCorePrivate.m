@@ -145,33 +145,10 @@ id UIKitCorePrivateMakeEmptyHighlightEffect(UITargetedPreview *preview) {
   return [effectClass effectWithPreview:preview continuingFromPreview:preview];
 }
 
-@protocol UIKitCorePrivateOpeningPresentation <NSObject>
-- (id)uiController;
+@protocol UIKitCorePrivatePrimaryMenuPreview <NSObject>
+- (void)set_primarySourcePreview:(UITargetedPreview *)preview;
 @end
-@protocol UIKitCorePrivateOpeningInteraction <NSObject>
-- (id)presentationInteraction;
-- (NSDictionary *)presentationsByIdentifier;
-@end
-@protocol UIKitCorePrivateOpeningDriver <NSObject>
-- (id<UIKitCorePrivateOpeningPresentation>)pendingPresentation;
-@end
-@protocol UIKitCorePrivateOpeningController <NSObject>
-- (UIView *)contentPlatterView;
-- (UIView *)platterTransitionView;
-@end
-void UIKitCorePrivateInspectMenuPreview(UIContextMenuInteraction *interaction) {
-  id<UIKitCorePrivateOpeningInteraction> opening = (id)interaction;
-  NSDictionary *presentations = [opening presentationsByIdentifier];
-  id<UIKitCorePrivateOpeningDriver> driver = [opening presentationInteraction];
-  id<UIKitCorePrivateOpeningPresentation> pending = [driver pendingPresentation];
-  id<UIKitCorePrivateOpeningController> controller = [pending uiController];
-  NSLog(@"ChatOpening count=%lu pending=%d controller=%d", (unsigned long)presentations.count, pending != nil, controller != nil);
-  for (id<UIKitCorePrivateOpeningPresentation> presentation in presentations.allValues) {
-    id<UIKitCorePrivateOpeningController> candidate = [presentation uiController];
-    UIView *platter = [candidate contentPlatterView];
-    UIView *transition = [candidate platterTransitionView];
-    NSLog(@"ChatOpening platter=%@ bounds=%@ children=%@ transition=%@ transitionChildren=%@",
-          NSStringFromClass(platter.class), NSStringFromCGRect(platter.bounds), [platter.subviews valueForKey:@"class"],
-          NSStringFromClass(transition.class), [transition.subviews valueForKey:@"class"]);
-  }
+
+void UIKitCorePrivateSetPrimaryMenuPreview(UIContextMenuConfiguration *configuration, UITargetedPreview *preview) {
+  [(id<UIKitCorePrivatePrimaryMenuPreview>)configuration set_primarySourcePreview:preview];
 }
