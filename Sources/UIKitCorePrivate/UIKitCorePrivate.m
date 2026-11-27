@@ -40,9 +40,27 @@ id<UIKitCorePrivateGlassMaterial> UIKitCorePrivateGlassMaterialCreate(NSInteger 
   return [allocated initWithVariant:variant];
 }
 
+typedef NS_ENUM(NSUInteger, UIKitCorePrivateMenuAttachment) {
+  UIKitCorePrivateMenuAttachmentBottom = 4,
+};
+
+typedef NS_ENUM(NSUInteger, UIKitCorePrivateMenuAlignment) {
+  UIKitCorePrivateMenuAlignmentLeading = 2,
+  UIKitCorePrivateMenuAlignmentTrailing = 8,
+};
+
+typedef struct {
+  UIKitCorePrivateMenuAttachment attachment;
+  UIKitCorePrivateMenuAlignment alignment;
+  CGFloat attachmentOffset;
+  CGFloat alignmentOffset;
+  NSInteger gravity;
+} UIKitCorePrivateMenuAnchor;
+
 @protocol UIKitCorePrivateContextMenuStyle <NSObject>
 @property (nonatomic) BOOL shouldMenuOverlapSourcePreview;
 @property (nonatomic) BOOL hasInteractivePreview;
+@property (nonatomic) UIKitCorePrivateMenuAnchor _preferredAnchor;
 + (id<UIKitCorePrivateContextMenuStyle>)defaultStyle;
 @end
 
@@ -477,6 +495,10 @@ static UITargetedPreview *TranscriptMenuDismissal(
   return [delegate collectionView:view contextMenuConfiguration:configuration dismissalPreviewForItemAtIndexPath:path];
 }
 
+@protocol UIKitCorePrivateTranscriptMenuDelegate <UICollectionViewDelegate>
+- (NSNumber *)chatTranscriptMenuAlignsTrailing:(UIContextMenuConfiguration *)configuration;
+@end
+
 static id TranscriptMenuStyle(
   id controller, SEL command, UICollectionView *view, UIContextMenuConfiguration *configuration
 ) {
@@ -484,6 +506,15 @@ static id TranscriptMenuStyle(
   id<UIKitCorePrivateContextMenuStyle> styleClass = (id)UIKitCorePrivateClassFromBase64(@"X1VJQ29udGV4dE1lbnVTdHlsZQ==");
   id<UIKitCorePrivateContextMenuStyle> style = [styleClass defaultStyle];
   style.hasInteractivePreview = YES;
+  id<UIKitCorePrivateTranscriptMenuDelegate> delegate = (id)TranscriptHostedDelegate(controller, command);
+  if ([delegate respondsToSelector:@selector(chatTranscriptMenuAlignsTrailing:)]) {
+    NSNumber *trailing = [delegate chatTranscriptMenuAlignsTrailing:configuration];
+    if (trailing) {
+      UIKitCorePrivateMenuAlignment alignment = trailing.boolValue
+        ? UIKitCorePrivateMenuAlignmentTrailing : UIKitCorePrivateMenuAlignmentLeading;
+      style._preferredAnchor = (UIKitCorePrivateMenuAnchor){UIKitCorePrivateMenuAttachmentBottom, alignment, 0, 0, 0};
+    }
+  }
   return style;
 }
 
