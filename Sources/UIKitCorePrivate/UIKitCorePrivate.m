@@ -83,3 +83,47 @@ UIKitCorePrivateSourceMenuButton *UIKitCorePrivateSourceMenuButtonCreate(void) {
   button.showsMenuFromSource = YES;
   return button;
 }
+
+#import <dlfcn.h>
+
+typedef struct IMColorComponents {
+  CGFloat red, green, blue, alpha;
+} IMColorComponents;
+
+@protocol UIKitCorePrivateChatBalloonDrawing <NSObject>
+- (void)setColor:(int8_t)color;
+- (void)setOrientation:(int8_t)orientation;
+- (void)setHasTail:(BOOL)hasTail;
+- (void)setCornerRadius:(CGFloat)radius;
+- (void)setBalloonCorners:(NSUInteger)corners;
+- (void)setDynamicFillColor:(IMColorComponents)color;
+- (void)prepareForDisplay;
+@end
+
+UIView *UIKitCorePrivateChatBalloonCreate(void) {
+  static Class balloonClass;
+  static dispatch_once_t onceToken;
+  dispatch_once(&onceToken, ^{
+    dlopen("/System/Library/PrivateFrameworks/ChatKit.framework/ChatKit", RTLD_NOW | RTLD_LOCAL);
+    // CKColoredBalloonView
+    balloonClass = UIKitCorePrivateClassFromBase64(@"Q0tDb2xvcmVkQmFsbG9vblZpZXc=");
+  });
+  return [[balloonClass alloc] initWithFrame:CGRectZero];
+}
+
+void UIKitCorePrivateChatBalloonConfigure(UIView *view, BOOL outgoing, BOOL hasTail, CGFloat radius, UIColor *fill) {
+  UIView<UIKitCorePrivateChatBalloonDrawing> *balloon = (UIView<UIKitCorePrivateChatBalloonDrawing> *)view;
+  IMColorComponents components = {0};
+  [fill getRed:&components.red green:&components.green blue:&components.blue alpha:&components.alpha];
+
+  [balloon setColor:outgoing ? 2 : 1];
+  [balloon setOrientation:outgoing ? 1 : 0];
+  [balloon setHasTail:hasTail];
+  [balloon setCornerRadius:radius];
+  [balloon setBalloonCorners:UIRectCornerTopLeft | UIRectCornerTopRight | UIRectCornerBottomLeft | UIRectCornerBottomRight];
+  [balloon setDynamicFillColor:components];
+}
+
+void UIKitCorePrivateChatBalloonPrepare(UIView *view) {
+  [(id<UIKitCorePrivateChatBalloonDrawing>)view prepareForDisplay];
+}
