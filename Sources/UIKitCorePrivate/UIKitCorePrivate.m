@@ -41,10 +41,12 @@ id<UIKitCorePrivateGlassMaterial> UIKitCorePrivateGlassMaterialCreate(NSInteger 
 }
 
 typedef NS_ENUM(NSUInteger, UIKitCorePrivateMenuAttachment) {
+  UIKitCorePrivateMenuAttachmentLeading = 2,
   UIKitCorePrivateMenuAttachmentBottom = 4,
 };
 
 typedef NS_ENUM(NSUInteger, UIKitCorePrivateMenuAlignment) {
+  UIKitCorePrivateMenuAlignmentTop = 1,
   UIKitCorePrivateMenuAlignmentLeading = 2,
   UIKitCorePrivateMenuAlignmentTrailing = 8,
 };
@@ -496,6 +498,7 @@ static UITargetedPreview *TranscriptMenuDismissal(
 }
 
 @protocol UIKitCorePrivateTranscriptMenuDelegate <UICollectionViewDelegate>
+- (NSValue *)chatTranscriptMenuLeadingOffset:(UIContextMenuConfiguration *)configuration;
 - (NSNumber *)chatTranscriptMenuAlignsTrailing:(UIContextMenuConfiguration *)configuration;
 @end
 
@@ -507,6 +510,16 @@ static id TranscriptMenuStyle(
   id<UIKitCorePrivateContextMenuStyle> style = [styleClass defaultStyle];
   style.hasInteractivePreview = YES;
   id<UIKitCorePrivateTranscriptMenuDelegate> delegate = (id)TranscriptHostedDelegate(controller, command);
+  if ([delegate respondsToSelector:@selector(chatTranscriptMenuLeadingOffset:)]) {
+    NSValue *leadingOffset = [delegate chatTranscriptMenuLeadingOffset:configuration];
+    if (leadingOffset) {
+      CGPoint offset = leadingOffset.CGPointValue;
+      style._preferredAnchor = (UIKitCorePrivateMenuAnchor){
+        UIKitCorePrivateMenuAttachmentLeading, UIKitCorePrivateMenuAlignmentTop, offset.x, offset.y, 0
+      };
+      return style;
+    }
+  }
   if ([delegate respondsToSelector:@selector(chatTranscriptMenuAlignsTrailing:)]) {
     NSNumber *trailing = [delegate chatTranscriptMenuAlignsTrailing:configuration];
     if (trailing) {
