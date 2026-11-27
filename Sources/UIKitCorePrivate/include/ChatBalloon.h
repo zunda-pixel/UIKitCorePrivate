@@ -22,6 +22,7 @@ NS_SWIFT_UI_ACTOR
 - (void)prepareForReuse;
 @end
 
+NS_SWIFT_UI_ACTOR
 UIKIT_EXTERN id<UIKitCorePrivateBalloonSwipeHandling> _Nullable UIKitCorePrivateBalloonSwipeCreate(
   UICollectionViewCell *cell, void (^completion)(CGFloat, CGPoint), void (^changed)(CGFloat))
   NS_SWIFT_NAME(makeChatBalloonSwipe(_:completion:changed:));
