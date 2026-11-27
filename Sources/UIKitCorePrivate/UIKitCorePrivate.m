@@ -251,12 +251,79 @@ static char TranscriptRowsKey;
 - (BOOL)isCorrupt { return NO; }
 @end
 
+@protocol UIKitCorePrivateTapbackClassicAnimation <NSObject>
+- (void)animationTimerFired:(NSTimeInterval)time;
+@end
+
+static char TapbackRenderedImageKey;
+static void TapbackRenderClassicIcons(UIView *view) {
+  static Class classicView;
+  static dispatch_once_t onceToken;
+  dispatch_once(&onceToken, ^{
+    // CKTapbackClassicView
+    classicView = UIKitCorePrivateClassFromBase64(@"Q0tUYXBiYWNrQ2xhc3NpY1ZpZXc=");
+  });
+  if ([view isKindOfClass:classicView]) {
+    for (UIView *child in view.subviews) {
+      if (![child isKindOfClass:UIImageView.class]) continue;
+      UIImageView *imageView = (UIImageView *)child;
+      if (!imageView.image || imageView.image == objc_getAssociatedObject(view, &TapbackRenderedImageKey)) continue;
+      // A hosted picker leaves classic assets on their transparent opening frame.
+      // Advance its animation to the fully visible frame, keeping the ChatKit assets.
+      for (NSInteger frame = 1; frame <= 30; frame++) {
+        [(id<UIKitCorePrivateTapbackClassicAnimation>)view animationTimerFired:frame / 60.0];
+      }
+      objc_setAssociatedObject(view, &TapbackRenderedImageKey, imageView.image, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+    }
+    return;
+  }
+  for (UIView *child in view.subviews) TapbackRenderClassicIcons(child);
+}
+
+static UICollectionView *TapbackCollectionInView(UIView *view) {
+  if ([view isKindOfClass:UICollectionView.class]) return (UICollectionView *)view;
+  for (UIView *child in view.subviews) {
+    UICollectionView *collection = TapbackCollectionInView(child);
+    if (collection) return collection;
+  }
+  return nil;
+}
+
 @interface UIKitCorePrivateTapbackDelegate : NSObject
 @property(nonatomic, strong) id item;
 @property(nonatomic, copy) void (^selected)(NSString *);
+@property(nonatomic, strong) UICollectionView *collection;
+@property(nonatomic) BOOL renderScheduled;
+- (void)observeCollection:(UICollectionView *)collection;
+- (void)scheduleRender;
+
 @end
 
 @implementation UIKitCorePrivateTapbackDelegate
+- (void)dealloc {
+  [_collection removeObserver:self forKeyPath:@"contentSize"];
+  [_collection removeObserver:self forKeyPath:@"contentOffset"];
+}
+- (void)observeCollection:(UICollectionView *)collection {
+  if (self.collection || !collection) return;
+  self.collection = collection;
+  [collection addObserver:self forKeyPath:@"contentSize" options:0 context:NULL];
+  [collection addObserver:self forKeyPath:@"contentOffset" options:0 context:NULL];
+}
+- (void)scheduleRender {
+  if (self.renderScheduled) return;
+  self.renderScheduled = YES;
+  __weak typeof(self) weakSelf = self;
+  dispatch_async(dispatch_get_main_queue(), ^{
+    typeof(self) self = weakSelf;
+    self.renderScheduled = NO;
+    if (!self.collection.window) return;
+    for (UICollectionViewCell *cell in self.collection.visibleCells) TapbackRenderClassicIcons(cell);
+  });
+}
+- (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context {
+  [self scheduleRender];
+}
 - (id)pickerViewControllerDelegateForAccessoryView { return self; }
 - (id)balloonParentViewDelegateForAccessoryView { return nil; }
 - (NSArray *)contextualCKChatItemsForTapbackPickerViewController:(id)picker { return @[self.item]; }
@@ -311,7 +378,10 @@ UIView *UIKitCorePrivateTapbackAccessoryCreate(
 }
 
 void UIKitCorePrivateTapbackAccessorySetVisible(UIView *accessory, BOOL visible) {
+  UIKitCorePrivateTapbackDelegate *delegate = objc_getAssociatedObject(accessory, &TapbackDelegateKey);
+  [delegate observeCollection:TapbackCollectionInView(accessory)];
   [(id<UIKitCorePrivateTapbackAccessory>)accessory setVisible:visible animated:YES];
+  if (visible) [delegate scheduleRender];
 }
 
 static char TranscriptDelegateKey;
