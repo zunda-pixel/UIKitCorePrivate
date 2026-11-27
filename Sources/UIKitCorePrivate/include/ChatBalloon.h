@@ -14,6 +14,19 @@ UIKIT_EXTERN void UIKitCorePrivateChatBalloonConfigure(UIView *view, BOOL outgoi
 UIKIT_EXTERN void UIKitCorePrivateChatBalloonPrepare(UIView *view)
   NS_SWIFT_NAME(prepareChatBalloon(_:));
 
+NS_SWIFT_UI_ACTOR
+@protocol UIKitCorePrivateBalloonSwipeHandling <NSObject>
+@property(nonatomic, readonly) UIView *replyIndicator;
+- (void)setBalloonView:(UIView *)view;
+- (void)swipeToReplyGestureHandler:(UIPanGestureRecognizer *)pan;
+- (void)prepareForReuse;
+@end
+
+NS_SWIFT_UI_ACTOR
+UIKIT_EXTERN id<UIKitCorePrivateBalloonSwipeHandling> _Nullable UIKitCorePrivateBalloonSwipeCreate(
+  UICollectionViewCell *cell, void (^completion)(CGFloat, CGPoint), void (^changed)(CGFloat))
+  NS_SWIFT_NAME(makeChatBalloonSwipe(_:completion:changed:));
+
 NS_ASSUME_NONNULL_END
 
 #endif

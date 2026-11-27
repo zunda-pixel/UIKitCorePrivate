@@ -127,3 +127,22 @@ void UIKitCorePrivateChatBalloonConfigure(UIView *view, BOOL outgoing, BOOL hasT
 void UIKitCorePrivateChatBalloonPrepare(UIView *view) {
   [(id<UIKitCorePrivateChatBalloonDrawing>)view prepareForDisplay];
 }
+
+@protocol UIKitCorePrivateBalloonSwipeInitializing <UIKitCorePrivateBalloonSwipeHandling>
+- (instancetype)initForCell:(UICollectionViewCell *)cell
+      swipeCompletionHandler:(void (^)(CGFloat, CGPoint))completion
+         swipeChangedHandler:(void (^)(CGFloat))changed;
+@end
+
+id<UIKitCorePrivateBalloonSwipeHandling> UIKitCorePrivateBalloonSwipeCreate(
+    UICollectionViewCell *cell, void (^completion)(CGFloat, CGPoint), void (^changed)(CGFloat)) {
+  static Class swipeClass;
+  static dispatch_once_t onceToken;
+  dispatch_once(&onceToken, ^{
+    dlopen("/System/Library/PrivateFrameworks/ChatKit.framework/ChatKit", RTLD_NOW | RTLD_LOCAL);
+    // CKBalloonSwipeController
+    swipeClass = UIKitCorePrivateClassFromBase64(@"Q0tCYWxsb29uU3dpcGVDb250cm9sbGVy");
+  });
+  return [(id<UIKitCorePrivateBalloonSwipeInitializing>)[swipeClass alloc]
+      initForCell:cell swipeCompletionHandler:completion swipeChangedHandler:changed];
+}
