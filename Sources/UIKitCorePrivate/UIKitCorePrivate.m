@@ -129,6 +129,54 @@ void UIKitCorePrivateChatBalloonPrepare(UIView *view) {
   [(id<UIKitCorePrivateChatBalloonDrawing>)view prepareForDisplay];
 }
 
+@protocol UIKitCorePrivateTextBalloonContent <NSObject>
+- (void)setAttributedText:(NSAttributedString *)text;
+- (void)setAllowsTextSelection:(BOOL)allowed;
+- (CGSize)sizeThatFits:(CGSize)size textAlignmentInsets:(UIEdgeInsets)alignment tailInsets:(UIEdgeInsets)tail;
+@end
+
+@protocol UIKitCorePrivateImageBalloonContent <NSObject>
+- (void)setImage:(UIImage *)image;
+@end
+
+UIView *UIKitCorePrivateTextBalloonCreate(void) {
+  static Class cls;
+  static dispatch_once_t onceToken;
+  dispatch_once(&onceToken, ^{
+    dlopen("/System/Library/PrivateFrameworks/ChatKit.framework/ChatKit", RTLD_NOW | RTLD_LOCAL);
+    // CKTextBalloonView
+    cls = UIKitCorePrivateClassFromBase64(@"Q0tUZXh0QmFsbG9vblZpZXc=");
+  });
+  UIView *view = [[cls alloc] initWithFrame:CGRectZero];
+  [(id<UIKitCorePrivateTextBalloonContent>)view setAllowsTextSelection:NO];
+  return view;
+}
+
+void UIKitCorePrivateTextBalloonSetText(UIView *view, NSAttributedString *text) {
+  [(id<UIKitCorePrivateTextBalloonContent>)view setAttributedText:text];
+}
+
+CGSize UIKitCorePrivateTextBalloonMeasure(UIView *view, CGFloat width) {
+  return [(id<UIKitCorePrivateTextBalloonContent>)view sizeThatFits:CGSizeMake(width, CGFLOAT_MAX)
+    textAlignmentInsets:UIEdgeInsetsZero tailInsets:UIEdgeInsetsZero];
+}
+
+UIView *UIKitCorePrivateImageBalloonCreate(void) {
+  static Class cls;
+  static dispatch_once_t onceToken;
+  dispatch_once(&onceToken, ^{
+    dlopen("/System/Library/PrivateFrameworks/ChatKit.framework/ChatKit", RTLD_NOW | RTLD_LOCAL);
+    // CKImageBalloonView
+    cls = UIKitCorePrivateClassFromBase64(@"Q0tJbWFnZUJhbGxvb25WaWV3");
+  });
+  return [[cls alloc] initWithFrame:CGRectZero];
+}
+
+void UIKitCorePrivateImageBalloonSetImage(UIView *view, UIImage *image) {
+  [(id<UIKitCorePrivateImageBalloonContent>)view setImage:image];
+  UIKitCorePrivateChatBalloonPrepare(view);
+}
+
 @protocol UIKitCorePrivateBalloonSwipeInitializing <UIKitCorePrivateBalloonSwipeHandling>
 - (instancetype)initForCell:(UICollectionViewCell *)cell
       swipeCompletionHandler:(void (^)(CGFloat, CGPoint))completion

@@ -15,6 +15,24 @@ UIKIT_EXTERN void UIKitCorePrivateChatBalloonPrepare(UIView *view)
   NS_SWIFT_NAME(prepareChatBalloon(_:));
 
 NS_SWIFT_UI_ACTOR
+UIKIT_EXTERN UIView * _Nullable UIKitCorePrivateTextBalloonCreate(void) NS_SWIFT_NAME(makeChatTextBalloon());
+
+NS_SWIFT_UI_ACTOR
+UIKIT_EXTERN void UIKitCorePrivateTextBalloonSetText(UIView *view, NSAttributedString *text)
+  NS_SWIFT_NAME(setChatTextBalloonText(_:text:));
+
+NS_SWIFT_UI_ACTOR
+UIKIT_EXTERN CGSize UIKitCorePrivateTextBalloonMeasure(UIView *view, CGFloat width)
+  NS_SWIFT_NAME(measureChatTextBalloon(_:width:));
+
+NS_SWIFT_UI_ACTOR
+UIKIT_EXTERN UIView * _Nullable UIKitCorePrivateImageBalloonCreate(void) NS_SWIFT_NAME(makeChatImageBalloon());
+
+NS_SWIFT_UI_ACTOR
+UIKIT_EXTERN void UIKitCorePrivateImageBalloonSetImage(UIView *view, UIImage *image)
+  NS_SWIFT_NAME(setChatImageBalloonImage(_:image:));
+
+NS_SWIFT_UI_ACTOR
 @protocol UIKitCorePrivateBalloonSwipeHandling <NSObject>
 @property(nonatomic, readonly) UIView *replyIndicator;
 - (void)setBalloonView:(UIView *)view;
