@@ -134,14 +134,6 @@ UIBezierPath *UIKitCorePrivateChatBalloonPreviewPath(UIView *view) {
   return [(id<UIKitCorePrivateChatBalloonDrawing>)view bezierPathForDragPreview];
 }
 
-@protocol UIKitCorePrivateUnmaskedPreview <NSObject>
-- (void)_setPrefersUnmaskedPlatterStyle:(BOOL)unmasked;
-@end
-
-void UIKitCorePrivateUseUnmaskedPreview(UITargetedPreview *preview) {
-  [(id<UIKitCorePrivateUnmaskedPreview>)preview _setPrefersUnmaskedPlatterStyle:YES];
-}
-
 @protocol UIKitCorePrivateHighlightEffectFactory <NSObject>
 + (id)effectWithPreview:(UITargetedPreview *)preview continuingFromPreview:(UITargetedPreview * _Nullable)previousPreview;
 @end

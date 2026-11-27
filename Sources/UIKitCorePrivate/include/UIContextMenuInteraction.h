@@ -19,9 +19,6 @@ NS_SWIFT_NAME(ContextMenuStyle)
 UIKIT_EXTERN id<UIKitCorePrivateContextMenuStyle> UIKitCorePrivateContextMenuStyleCreate(void)
   NS_SWIFT_NAME(makeContextMenuStyle());
 
-UIKIT_EXTERN void UIKitCorePrivateUseUnmaskedPreview(UITargetedPreview *preview)
-  NS_SWIFT_NAME(useUnmaskedContextMenuPreview(_:));
-
 UIKIT_EXTERN id UIKitCorePrivateMakeEmptyHighlightEffect(UITargetedPreview *preview)
   NS_SWIFT_NAME(makeEmptyContextMenuHighlightEffect(_:));
 
