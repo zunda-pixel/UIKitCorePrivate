@@ -1,4 +1,5 @@
 #import "UIKitCorePrivate.h"
+#import <objc/runtime.h>
 
 // App Store Connect rejects an app whose binary has the name of a non-public class (ITMS-90338), as a class
 // reference or as a string, even as a part of a longer string. Classes are looked up at runtime by a name that
@@ -145,35 +146,28 @@ id UIKitCorePrivateMakeEmptyHighlightEffect(UITargetedPreview *preview) {
   return [effectClass effectWithPreview:preview continuingFromPreview:preview];
 }
 
-@protocol UIKitCorePrivatePreviewMenuController <NSObject>
-- (UIView *)contentPlatterView;
+static const char BubblePreviewOutlineKey;
+
+@protocol UIKitCorePrivateTargetedPreviewPlatterStyle <NSObject>
+- (void)_setPrefersUnmaskedPlatterStyle:(BOOL)unmasked;
 @end
 
-@protocol UIKitCorePrivatePreviewPresentation <NSObject>
-- (UIContextMenuConfiguration *)menuConfiguration;
-- (id<UIKitCorePrivatePreviewMenuController>)uiController;
-@end
-
-@protocol UIKitCorePrivatePreviewInteraction <NSObject>
-- (NSDictionary<id<NSCopying>, id<UIKitCorePrivatePreviewPresentation>> *)presentationsByIdentifier;
-@end
-
-UIView *UIKitCorePrivateContextMenuPreviewPlatter(UIContextMenuInteraction *interaction, UIContextMenuConfiguration *configuration) {
-  id<UIKitCorePrivatePreviewInteraction> previewInteraction = (id)interaction;
-  for (id<UIKitCorePrivatePreviewPresentation> presentation in [previewInteraction presentationsByIdentifier].allValues) {
-    if ([(NSObject *)[[presentation menuConfiguration] identifier] isEqual:configuration.identifier]) {
-      return [[presentation uiController] contentPlatterView];
-    }
-  }
-  return nil;
-}
-
-@protocol UIKitCorePrivateExpandedPreviewPlatter <NSObject>
-- (UITargetedPreview *)expandedPreview;
-@end
-
-void UIKitCorePrivateSetContextMenuPreviewOutline(UIView *platter, UIBezierPath *outline) {
-  UITargetedPreview *preview = [(id<UIKitCorePrivateExpandedPreviewPlatter>)platter expandedPreview];
-  preview.parameters.visiblePath = outline;
-  preview.parameters.backgroundColor = UIColor.clearColor;
+void UIKitCorePrivateSetContextMenuPreviewOutline(UIView *view, UIBezierPath *outline) {
+  static dispatch_once_t once;
+  dispatch_once(&once, ^{
+    // _UIContentPlatterView
+    Class platterClass = UIKitCorePrivateClassFromBase64(@"X1VJQ29udGVudFBsYXR0ZXJWaWV3");
+    SEL selector = NSSelectorFromString(@"setExpandedPreview:");
+    Method setter = class_getInstanceMethod(platterClass, selector);
+    void (*setExpandedPreview)(id, SEL, UITargetedPreview *) = (void *)method_getImplementation(setter);
+    method_setImplementation(setter, imp_implementationWithBlock(^(id platter, UITargetedPreview *preview) {
+      UIBezierPath *path = objc_getAssociatedObject(preview.view, &BubblePreviewOutlineKey);
+      if (path != nil) {
+        preview.parameters.visiblePath = path;
+        [(id<UIKitCorePrivateTargetedPreviewPlatterStyle>)preview _setPrefersUnmaskedPlatterStyle:YES];
+      }
+      setExpandedPreview(platter, selector, preview);
+    }));
+  });
+  objc_setAssociatedObject(view, &BubblePreviewOutlineKey, [outline copy], OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 }
