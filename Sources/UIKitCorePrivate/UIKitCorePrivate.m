@@ -446,6 +446,13 @@ static void TranscriptDidEndDisplaying(id controller, SEL command, UICollectionV
 
 static void TranscriptWillDisplay(id controller, SEL command, UICollectionView *view, UICollectionViewCell *cell, NSIndexPath *path) {}
 
+// The hosted data source configures its cells. ChatKit's width invalidation can
+// reconfigure visible cells directly and assumes they are its own message cells.
+static void TranscriptConfigureHostedCell(
+  id controller, SEL command, UICollectionViewCell *cell, id item, NSIndexPath *path,
+  BOOL animated, NSTimeInterval duration, NSUInteger curve
+) {}
+
 static BOOL TranscriptIgnoresSelection(id controller, SEL command, UICollectionView *view, NSIndexPath *path) {
   return NO;
 }
@@ -514,6 +521,9 @@ UIViewController<UIKitCorePrivateTranscriptHosting> *UIKitCorePrivateTranscriptC
     class_addMethod(controllerClass, @selector(setHostedDelegate:), (IMP)TranscriptSetHostedDelegate, "v@:@");
     class_addMethod(controllerClass, @selector(scrollViewDidScroll:), (IMP)TranscriptDidScroll, "v@:@");
     class_addMethod(controllerClass, @selector(scrollViewShouldScrollToTop:), (IMP)TranscriptShouldScrollToTop, "B@:@");
+    SEL configureCell = @selector(configureCell:forCKChatItem:atIndexPath:animated:animationDuration:animationCurve:);
+    class_addMethod(controllerClass, configureCell, (IMP)TranscriptConfigureHostedCell,
+      method_getTypeEncoding(class_getInstanceMethod(base, configureCell)));
     class_addMethod(controllerClass, @selector(collectionView:willDisplayCell:forItemAtIndexPath:), (IMP)TranscriptWillDisplay, "v@:@@@");
     class_addMethod(controllerClass, @selector(collectionView:didEndDisplayingCell:forItemAtIndexPath:), (IMP)TranscriptDidEndDisplaying, "v@:@@@");
     class_addMethod(controllerClass, @selector(collectionView:shouldSelectItemAtIndexPath:), (IMP)TranscriptIgnoresSelection, "B@:@@");
