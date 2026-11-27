@@ -43,6 +43,7 @@ id<UIKitCorePrivateGlassMaterial> UIKitCorePrivateGlassMaterialCreate(NSInteger 
 @protocol UIKitCorePrivateContextMenuStyle <NSObject>
 @property (nonatomic) BOOL shouldMenuOverlapSourcePreview;
 @property (nonatomic) BOOL hasInteractivePreview;
+@property (nonatomic) CGPoint _preferredMenuAttachmentPoint;
 @end
 
 @interface UIButton (UIKitCorePrivateContextMenuStyle)
@@ -476,12 +477,26 @@ static UITargetedPreview *TranscriptMenuDismissal(
   return [delegate collectionView:view contextMenuConfiguration:configuration dismissalPreviewForItemAtIndexPath:path];
 }
 
+@protocol UIKitCorePrivateTranscriptMenuPlacement <UICollectionViewDelegate>
+- (UITargetedPreview *)chatTranscriptMenuPreview:(UIContextMenuConfiguration *)configuration;
+@end
+
 static id TranscriptMenuStyle(
   id controller, SEL command, UICollectionView *view, UIContextMenuConfiguration *configuration
 ) {
   // _UIContextMenuStyle
   id<UIKitCorePrivateContextMenuStyle> style = [UIKitCorePrivateClassFromBase64(@"X1VJQ29udGV4dE1lbnVTdHlsZQ==") new];
   style.hasInteractivePreview = YES;
+  id<UIKitCorePrivateTranscriptMenuPlacement> delegate = (id)TranscriptHostedDelegate(controller, command);
+  if ([delegate respondsToSelector:@selector(chatTranscriptMenuPreview:)]) {
+    UITargetedPreview *preview = [delegate chatTranscriptMenuPreview:configuration];
+    if (preview) {
+      UIPreviewTarget *target = preview.target;
+      CGPoint point = [target.container convertPoint:target.center toView:view];
+      style._preferredMenuAttachmentPoint = CGPointMake(point.x - CGRectGetMinX(view.bounds),
+        point.y - CGRectGetMinY(view.bounds) + CGRectGetHeight(preview.view.bounds) / 2);
+    }
+  }
   return style;
 }
 
