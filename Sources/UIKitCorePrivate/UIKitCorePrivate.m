@@ -141,3 +141,14 @@ UIBezierPath *UIKitCorePrivateChatBalloonPreviewPath(UIView *view) {
 void UIKitCorePrivateUseUnmaskedPreview(UITargetedPreview *preview) {
   [(id<UIKitCorePrivateUnmaskedPreview>)preview _setPrefersUnmaskedPlatterStyle:YES];
 }
+
+@protocol UIKitCorePrivateHighlightEffectFactory <NSObject>
++ (id)effectWithPreview:(UITargetedPreview *)preview continuingFromPreview:(UITargetedPreview * _Nullable)previousPreview;
+@end
+
+id UIKitCorePrivateMakeEmptyHighlightEffect(UITargetedPreview *preview) {
+  // _UINullClickHighlightEffect
+  Class<UIKitCorePrivateHighlightEffectFactory> effectClass =
+      UIKitCorePrivateClassFromBase64(@"X1VJTnVsbENsaWNrSGlnaGxpZ2h0RWZmZWN0");
+  return [effectClass effectWithPreview:preview continuingFromPreview:nil];
+}

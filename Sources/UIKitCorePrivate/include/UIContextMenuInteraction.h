@@ -22,6 +22,9 @@ UIKIT_EXTERN id<UIKitCorePrivateContextMenuStyle> UIKitCorePrivateContextMenuSty
 UIKIT_EXTERN void UIKitCorePrivateUseUnmaskedPreview(UITargetedPreview *preview)
   NS_SWIFT_NAME(useUnmaskedContextMenuPreview(_:));
 
+UIKIT_EXTERN id UIKitCorePrivateMakeEmptyHighlightEffect(UITargetedPreview *preview)
+  NS_SWIFT_NAME(makeEmptyContextMenuHighlightEffect(_:));
+
 @protocol UIKitCorePrivateContextMenuInteractionDelegate <UIContextMenuInteractionDelegate>
 - (id<UIKitCorePrivateContextMenuStyle>)_contextMenuInteraction:(UIContextMenuInteraction *)interaction
                                  styleForMenuWithConfiguration:(UIContextMenuConfiguration *)configuration
