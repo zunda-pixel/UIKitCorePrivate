@@ -218,9 +218,18 @@ static char TranscriptRowsKey;
 - (instancetype)initWithIMChatItem:(id)item maxWidth:(CGFloat)width;
 @end
 
+@protocol UIKitCorePrivateTapbackDisplayConfiguration <NSObject>
+@property(nonatomic) CGFloat sourceX;
+@end
+
+@protocol UIKitCorePrivateTapbackBalloonParent <NSObject>
+@property(nonatomic, strong) id<UIKitCorePrivateTapbackDisplayConfiguration> displayConfiguration;
+@end
+
 @protocol UIKitCorePrivateTapbackAccessory <NSObject>
 - (instancetype)init:(id)item layoutBounds:(CGRect)bounds delegate:(id)delegate;
 - (void)setVisible:(BOOL)visible animated:(BOOL)animated;
+- (id<UIKitCorePrivateTapbackBalloonParent>)pickerBalloonParentView;
 @end
 
 @protocol UIKitCorePrivateTapbackValue <NSObject>
@@ -382,6 +391,14 @@ void UIKitCorePrivateTapbackAccessorySetVisible(UIView *accessory, BOOL visible)
   [delegate observeCollection:TapbackCollectionInView(accessory)];
   [(id<UIKitCorePrivateTapbackAccessory>)accessory setVisible:visible animated:YES];
   if (visible) [delegate scheduleRender];
+}
+
+void UIKitCorePrivateTapbackAccessoryAlign(UIView *accessory, CGFloat sourceX) {
+  id<UIKitCorePrivateTapbackBalloonParent> parent = [(id<UIKitCorePrivateTapbackAccessory>)accessory pickerBalloonParentView];
+  id<UIKitCorePrivateTapbackDisplayConfiguration> configuration = parent.displayConfiguration;
+  if (configuration.sourceX == sourceX) return;
+  configuration.sourceX = sourceX;
+  parent.displayConfiguration = configuration;
 }
 
 static char TranscriptDelegateKey;

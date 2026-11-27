@@ -54,6 +54,10 @@ NS_SWIFT_UI_ACTOR
 UIKIT_EXTERN void UIKitCorePrivateTapbackAccessorySetVisible(UIView *accessory, BOOL visible)
   NS_SWIFT_NAME(setChatTapbackAccessoryVisible(_:visible:));
 
+NS_SWIFT_UI_ACTOR
+UIKIT_EXTERN void UIKitCorePrivateTapbackAccessoryAlign(UIView *accessory, CGFloat sourceX)
+  NS_SWIFT_NAME(alignChatTapbackAccessory(_:sourceX:));
+
 NS_ASSUME_NONNULL_END
 
 #endif
