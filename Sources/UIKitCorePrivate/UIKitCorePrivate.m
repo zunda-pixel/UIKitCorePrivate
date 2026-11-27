@@ -1,4 +1,5 @@
 #import "UIKitCorePrivate.h"
+#import <objc/runtime.h>
 
 // App Store Connect rejects an app whose binary has the name of a non-public class (ITMS-90338), as a class
 // reference or as a string, even as a part of a longer string. Classes are looked up at runtime by a name that
@@ -145,4 +146,150 @@ id<UIKitCorePrivateBalloonSwipeHandling> UIKitCorePrivateBalloonSwipeCreate(
   });
   return [(id<UIKitCorePrivateBalloonSwipeInitializing>)[swipeClass alloc]
       initForCell:cell swipeCompletionHandler:completion swipeChangedHandler:changed];
+}
+
+@protocol UIKitCorePrivateTranscriptInitializing <NSObject>
+- (instancetype)initWithChat:(nullable id)chat;
+- (instancetype)initWithConversation:(id)conversation delegate:(nullable id)delegate
+    balloonMaxWidth:(CGFloat)width marginInsets:(UIEdgeInsets)insets collectionViewSize:(CGSize)size;
+@end
+
+@protocol UIKitCorePrivateTranscriptScrolling <NSObject>
+- (void)beginDisablingTranscriptDynamicsForReason:(NSInteger)reason;
+- (void)endDisablingTranscriptDynamicsForReason:(NSInteger)reason;
+- (void)performContentOffsetUpdateTemporarilyOverridingHoldStatus:(void (^)(void))updates;
+@end
+
+static char TranscriptRowsKey;
+static char TranscriptDelegateKey;
+
+@interface UIKitCorePrivateTranscriptDelegateReference : NSObject
+@property(nonatomic, weak) id<UICollectionViewDelegate> delegate;
+@end
+
+@implementation UIKitCorePrivateTranscriptDelegateReference
+@end
+
+static id<UICollectionViewDelegate> TranscriptHostedDelegate(id controller, SEL command) {
+  UIKitCorePrivateTranscriptDelegateReference *reference = objc_getAssociatedObject(controller, &TranscriptDelegateKey);
+  return reference.delegate;
+}
+
+static void TranscriptSetHostedDelegate(id controller, SEL command, id<UICollectionViewDelegate> delegate) {
+  UIKitCorePrivateTranscriptDelegateReference *reference = [UIKitCorePrivateTranscriptDelegateReference new];
+  reference.delegate = delegate;
+  objc_setAssociatedObject(controller, &TranscriptDelegateKey, reference, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+}
+
+static void TranscriptDidScroll(id controller, SEL command, UIScrollView *view) {
+  id<UICollectionViewDelegate> delegate = TranscriptHostedDelegate(controller, command);
+  if ([delegate respondsToSelector:command]) [delegate scrollViewDidScroll:view];
+}
+
+static BOOL TranscriptShouldScrollToTop(id controller, SEL command, UIScrollView *view) {
+  id<UICollectionViewDelegate> delegate = TranscriptHostedDelegate(controller, command);
+  return ![delegate respondsToSelector:command] || [delegate scrollViewShouldScrollToTop:view];
+}
+
+static void TranscriptDidEndDisplaying(id controller, SEL command, UICollectionView *view, UICollectionViewCell *cell, NSIndexPath *path) {
+  id<UICollectionViewDelegate> delegate = TranscriptHostedDelegate(controller, command);
+  if ([delegate respondsToSelector:command]) [delegate collectionView:view didEndDisplayingCell:cell forItemAtIndexPath:path];
+}
+
+static void TranscriptWillDisplay(id controller, SEL command, UICollectionView *view, UICollectionViewCell *cell, NSIndexPath *path) {}
+
+static BOOL TranscriptIgnoresSelection(id controller, SEL command, UICollectionView *view, NSIndexPath *path) {
+  return NO;
+}
+static char TranscriptSizeKey;
+
+static NSArray *TranscriptItems(id controller, SEL command) {
+  return objc_getAssociatedObject(controller, &TranscriptRowsKey) ?: @[];
+}
+
+static CGSize TranscriptItemSize(id item, SEL command) {
+  return [objc_getAssociatedObject(item, &TranscriptSizeKey) CGSizeValue];
+}
+
+static BOOL TranscriptItemEqual(id item, SEL command, id other) {
+  return item == other;
+}
+
+static NSUInteger TranscriptItemHash(id item, SEL command) {
+  return (NSUInteger)(__bridge void *)item;
+}
+
+static Class TranscriptSizedItemClass;
+
+static void TranscriptSetSizes(id controller, SEL command, NSArray<NSValue *> *sizes) {
+  NSMutableArray *items = [NSMutableArray arrayWithCapacity:sizes.count];
+  for (NSValue *size in sizes) {
+    id item = [[TranscriptSizedItemClass alloc] init];
+    objc_setAssociatedObject(item, &TranscriptSizeKey, size, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+    [items addObject:item];
+  }
+  objc_setAssociatedObject(controller, &TranscriptRowsKey, items.copy, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+}
+
+static NSArray<NSValue *> *TranscriptGetSizes(id controller, SEL command) {
+  NSMutableArray<NSValue *> *sizes = [NSMutableArray array];
+  for (id item in TranscriptItems(controller, command)) {
+    [sizes addObject:objc_getAssociatedObject(item, &TranscriptSizeKey)];
+  }
+  return sizes.copy;
+}
+
+static BOOL TranscriptShouldUpdate(id controller, SEL command) {
+  return NO;
+}
+
+UIViewController<UIKitCorePrivateTranscriptHosting> *UIKitCorePrivateTranscriptCreate(void) {
+  static Class controllerClass;
+  static Class conversationClass;
+  static dispatch_once_t onceToken;
+  dispatch_once(&onceToken, ^{
+    dlopen("/System/Library/PrivateFrameworks/ChatKit.framework/ChatKit", RTLD_NOW | RTLD_LOCAL);
+    // CKTranscriptCollectionViewController, CKConversation, CKChatItem
+    Class base = UIKitCorePrivateClassFromBase64(@"Q0tUcmFuc2NyaXB0Q29sbGVjdGlvblZpZXdDb250cm9sbGVy");
+    conversationClass = UIKitCorePrivateClassFromBase64(@"Q0tDb252ZXJzYXRpb24=");
+    Class itemBase = UIKitCorePrivateClassFromBase64(@"Q0tDaGF0SXRlbQ==");
+    if (!base || !conversationClass || !itemBase) return;
+
+    TranscriptSizedItemClass = objc_allocateClassPair(itemBase, "UIKitCorePrivateTranscriptSizedItem", 0);
+    class_addMethod(TranscriptSizedItemClass, @selector(size), (IMP)TranscriptItemSize, "{CGSize=dd}@:");
+    class_addMethod(TranscriptSizedItemClass, @selector(isEqual:), (IMP)TranscriptItemEqual, "B@:@");
+    class_addMethod(TranscriptSizedItemClass, @selector(hash), (IMP)TranscriptItemHash, "Q@:");
+    objc_registerClassPair(TranscriptSizedItemClass);
+    controllerClass = objc_allocateClassPair(base, "UIKitCorePrivateTranscriptHostController", 0);
+    class_addProtocol(controllerClass, @protocol(UIKitCorePrivateTranscriptHosting));
+    class_addMethod(controllerClass, @selector(hostedDelegate), (IMP)TranscriptHostedDelegate, "@@:");
+    class_addMethod(controllerClass, @selector(setHostedDelegate:), (IMP)TranscriptSetHostedDelegate, "v@:@");
+    class_addMethod(controllerClass, @selector(scrollViewDidScroll:), (IMP)TranscriptDidScroll, "v@:@");
+    class_addMethod(controllerClass, @selector(scrollViewShouldScrollToTop:), (IMP)TranscriptShouldScrollToTop, "B@:@");
+    class_addMethod(controllerClass, @selector(collectionView:willDisplayCell:forItemAtIndexPath:), (IMP)TranscriptWillDisplay, "v@:@@@");
+    class_addMethod(controllerClass, @selector(collectionView:didEndDisplayingCell:forItemAtIndexPath:), (IMP)TranscriptDidEndDisplaying, "v@:@@@");
+    class_addMethod(controllerClass, @selector(collectionView:shouldSelectItemAtIndexPath:), (IMP)TranscriptIgnoresSelection, "B@:@@");
+    class_addMethod(controllerClass, @selector(collectionView:shouldHighlightItemAtIndexPath:), (IMP)TranscriptIgnoresSelection, "B@:@@");
+    class_addMethod(controllerClass, @selector(chatItems), (IMP)TranscriptItems, "@@:");
+    class_addMethod(controllerClass, @selector(rowSizes), (IMP)TranscriptGetSizes, "@@:");
+    class_addMethod(controllerClass, @selector(setRowSizes:), (IMP)TranscriptSetSizes, "v@:@");
+    class_addMethod(controllerClass, @selector(shouldLoadDefaultConversationViewingMessageCountOnAppear), (IMP)TranscriptShouldUpdate, "B@:");
+    objc_registerClassPair(controllerClass);
+  });
+  if (!controllerClass) return nil;
+  id conversation = [(id<UIKitCorePrivateTranscriptInitializing>)[conversationClass alloc] initWithChat:nil];
+  return (UIViewController<UIKitCorePrivateTranscriptHosting> *)[(id<UIKitCorePrivateTranscriptInitializing>)[controllerClass alloc]
+    initWithConversation:conversation delegate:nil balloonMaxWidth:0 marginInsets:UIEdgeInsetsZero collectionViewSize:CGSizeZero];
+}
+
+void UIKitCorePrivateTranscriptUpdateOffset(UICollectionView *collectionView, void (^updates)(void)) {
+  id<UIKitCorePrivateTranscriptScrolling> transcript = (id)collectionView;
+  // The same reason ChatKit uses for programmatic scrolling.
+  const NSInteger programmaticScroll = 13;
+  [transcript beginDisablingTranscriptDynamicsForReason:programmaticScroll];
+  @try {
+    [transcript performContentOffsetUpdateTemporarilyOverridingHoldStatus:updates];
+  } @finally {
+    [transcript endDisablingTranscriptDynamicsForReason:programmaticScroll];
+  }
 }
