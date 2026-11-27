@@ -99,6 +99,7 @@ typedef struct IMColorComponents {
 - (void)setBalloonCorners:(NSUInteger)corners;
 - (void)setDynamicFillColor:(IMColorComponents)color;
 - (void)prepareForDisplay;
+- (UIBezierPath * _Nullable)bezierPathForDragPreview;
 @end
 
 UIView *UIKitCorePrivateChatBalloonCreate(void) {
@@ -127,4 +128,8 @@ void UIKitCorePrivateChatBalloonConfigure(UIView *view, BOOL outgoing, BOOL hasT
 
 void UIKitCorePrivateChatBalloonPrepare(UIView *view) {
   [(id<UIKitCorePrivateChatBalloonDrawing>)view prepareForDisplay];
+}
+
+UIBezierPath *UIKitCorePrivateChatBalloonPreviewPath(UIView *view) {
+  return [(id<UIKitCorePrivateChatBalloonDrawing>)view bezierPathForDragPreview];
 }
