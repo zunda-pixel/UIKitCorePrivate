@@ -41,6 +41,7 @@ id<UIKitCorePrivateGlassMaterial> UIKitCorePrivateGlassMaterialCreate(NSInteger 
 
 @protocol UIKitCorePrivateContextMenuStyle <NSObject>
 @property (nonatomic) BOOL shouldMenuOverlapSourcePreview;
+@property (nonatomic) BOOL showsAccessoriesForCompactMenu;
 @end
 
 @interface UIButton (UIKitCorePrivateContextMenuStyle)
@@ -450,6 +451,73 @@ static void TranscriptDidEndDisplaying(id controller, SEL command, UICollectionV
   if ([delegate respondsToSelector:command]) [delegate collectionView:view didEndDisplayingCell:cell forItemAtIndexPath:path];
 }
 
+@protocol UIKitCorePrivateTranscriptMenuDelegate <UICollectionViewDelegate>
+- (NSArray<UIView *> *)chatTranscriptMenuAccessories:(UIContextMenuConfiguration *)configuration;
+@end
+
+typedef struct {
+  NSUInteger attachment;
+  NSUInteger alignment;
+  CGFloat attachmentOffset;
+  CGFloat alignmentOffset;
+  NSInteger gravity;
+} UIKitCorePrivateContextMenuAnchor;
+
+static UIContextMenuConfiguration *TranscriptMenuConfiguration(
+  id controller, SEL command, UICollectionView *view, NSArray<NSIndexPath *> *paths, CGPoint point
+) {
+  id<UICollectionViewDelegate> delegate = TranscriptHostedDelegate(controller, command);
+  return [delegate collectionView:view contextMenuConfigurationForItemsAtIndexPaths:paths point:point];
+}
+
+static UITargetedPreview *TranscriptMenuHighlight(
+  id controller, SEL command, UICollectionView *view, UIContextMenuConfiguration *configuration, NSIndexPath *path
+) {
+  id<UICollectionViewDelegate> delegate = TranscriptHostedDelegate(controller, command);
+  return [delegate collectionView:view contextMenuConfiguration:configuration highlightPreviewForItemAtIndexPath:path];
+}
+
+static UITargetedPreview *TranscriptMenuDismissal(
+  id controller, SEL command, UICollectionView *view, UIContextMenuConfiguration *configuration, NSIndexPath *path
+) {
+  id<UICollectionViewDelegate> delegate = TranscriptHostedDelegate(controller, command);
+  return [delegate collectionView:view contextMenuConfiguration:configuration dismissalPreviewForItemAtIndexPath:path];
+}
+
+static NSArray<UIView *> *TranscriptMenuAccessories(
+  id controller, SEL command, UICollectionView *view, UIContextMenuConfiguration *configuration,
+  UIKitCorePrivateContextMenuAnchor anchor
+) {
+  id<UIKitCorePrivateTranscriptMenuDelegate> delegate = (id<UIKitCorePrivateTranscriptMenuDelegate>)TranscriptHostedDelegate(controller, command);
+  if (![delegate respondsToSelector:@selector(chatTranscriptMenuAccessories:)]) return @[];
+  return [delegate chatTranscriptMenuAccessories:configuration];
+}
+
+static id TranscriptMenuStyle(
+  id controller, SEL command, UICollectionView *view, UIContextMenuConfiguration *configuration
+) {
+  // _UIContextMenuStyle
+  id<UIKitCorePrivateContextMenuStyle> style = [UIKitCorePrivateClassFromBase64(@"X1VJQ29udGV4dE1lbnVTdHlsZQ==") new];
+  style.showsAccessoriesForCompactMenu = YES;
+  return style;
+}
+
+static void TranscriptMenuWillDisplay(
+  id controller, SEL command, UICollectionView *view, UIContextMenuConfiguration *configuration,
+  id<UIContextMenuInteractionAnimating> animator
+) {
+  id<UICollectionViewDelegate> delegate = TranscriptHostedDelegate(controller, command);
+  [delegate collectionView:view willDisplayContextMenuWithConfiguration:configuration animator:animator];
+}
+
+static void TranscriptMenuWillEnd(
+  id controller, SEL command, UICollectionView *view, UIContextMenuConfiguration *configuration,
+  id<UIContextMenuInteractionAnimating> animator
+) {
+  id<UICollectionViewDelegate> delegate = TranscriptHostedDelegate(controller, command);
+  [delegate collectionView:view willEndContextMenuInteractionWithConfiguration:configuration animator:animator];
+}
+
 static void TranscriptWillDisplay(id controller, SEL command, UICollectionView *view, UICollectionViewCell *cell, NSIndexPath *path) {}
 
 // The hosted data source configures its cells. ChatKit's width invalidation can
@@ -527,6 +595,20 @@ UIViewController<UIKitCorePrivateTranscriptHosting> *UIKitCorePrivateTranscriptC
     class_addMethod(controllerClass, @selector(setHostedDelegate:), (IMP)TranscriptSetHostedDelegate, "v@:@");
     class_addMethod(controllerClass, @selector(scrollViewDidScroll:), (IMP)TranscriptDidScroll, "v@:@");
     class_addMethod(controllerClass, @selector(scrollViewShouldScrollToTop:), (IMP)TranscriptShouldScrollToTop, "B@:@");
+    SEL menuConfiguration = @selector(collectionView:contextMenuConfigurationForItemsAtIndexPaths:point:);
+    SEL menuHighlight = @selector(collectionView:contextMenuConfiguration:highlightPreviewForItemAtIndexPath:);
+    SEL menuDismissal = @selector(collectionView:contextMenuConfiguration:dismissalPreviewForItemAtIndexPath:);
+    SEL menuDisplay = @selector(collectionView:willDisplayContextMenuWithConfiguration:animator:);
+    SEL menuEnd = @selector(collectionView:willEndContextMenuInteractionWithConfiguration:animator:);
+    SEL menuAccessories = sel_registerName("_collectionView:accessoriesForContextMenuWithConfiguration:layoutAnchor:");
+    SEL menuStyle = sel_registerName("_collectionView:styleForContextMenuWithConfiguration:");
+    class_addMethod(controllerClass, menuConfiguration, (IMP)TranscriptMenuConfiguration, method_getTypeEncoding(class_getInstanceMethod(base, menuConfiguration)));
+    class_addMethod(controllerClass, menuHighlight, (IMP)TranscriptMenuHighlight, method_getTypeEncoding(class_getInstanceMethod(base, menuHighlight)));
+    class_addMethod(controllerClass, menuDismissal, (IMP)TranscriptMenuDismissal, method_getTypeEncoding(class_getInstanceMethod(base, menuDismissal)));
+    class_addMethod(controllerClass, menuDisplay, (IMP)TranscriptMenuWillDisplay, method_getTypeEncoding(class_getInstanceMethod(base, menuDisplay)));
+    class_addMethod(controllerClass, menuEnd, (IMP)TranscriptMenuWillEnd, method_getTypeEncoding(class_getInstanceMethod(base, menuEnd)));
+    class_addMethod(controllerClass, menuAccessories, (IMP)TranscriptMenuAccessories, method_getTypeEncoding(class_getInstanceMethod(base, menuAccessories)));
+    class_addMethod(controllerClass, menuStyle, (IMP)TranscriptMenuStyle, method_getTypeEncoding(class_getInstanceMethod(base, menuStyle)));
     SEL configureCell = @selector(configureCell:forCKChatItem:atIndexPath:animated:animationDuration:animationCurve:);
     class_addMethod(controllerClass, configureCell, (IMP)TranscriptConfigureHostedCell,
       method_getTypeEncoding(class_getInstanceMethod(base, configureCell)));
