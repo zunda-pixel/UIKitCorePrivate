@@ -401,6 +401,14 @@ void UIKitCorePrivateTapbackAccessoryAlign(UIView *accessory, CGFloat sourceX) {
   parent.displayConfiguration = configuration;
 }
 
+@interface UIBlurEffect (UIKitCorePrivateChatBackdrop)
++ (instancetype)effectWithBlurRadius:(CGFloat)radius;
+@end
+
+UIBlurEffect *UIKitCorePrivateChatBackdropBlur(CGFloat radius) {
+  return [UIBlurEffect effectWithBlurRadius:radius];
+}
+
 static char TranscriptDelegateKey;
 
 @interface UIKitCorePrivateTranscriptDelegateReference : NSObject

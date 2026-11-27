@@ -58,6 +58,10 @@ NS_SWIFT_UI_ACTOR
 UIKIT_EXTERN void UIKitCorePrivateTapbackAccessoryAlign(UIView *accessory, CGFloat sourceX)
   NS_SWIFT_NAME(alignChatTapbackAccessory(_:sourceX:));
 
+NS_SWIFT_UI_ACTOR
+UIKIT_EXTERN UIBlurEffect *UIKitCorePrivateChatBackdropBlur(CGFloat radius)
+  NS_SWIFT_NAME(makeChatBackdropBlur(radius:));
+
 NS_ASSUME_NONNULL_END
 
 #endif
