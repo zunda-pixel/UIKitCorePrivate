@@ -38,9 +38,10 @@ id<UIKitCorePrivateGlassMaterial> UIKitCorePrivateGlassMaterialCreate(NSInteger 
   return [allocated initWithVariant:variant];
 }
 
-@protocol UIKitCorePrivateContextMenuStyle <NSObject>
-@property (nonatomic) BOOL shouldMenuOverlapSourcePreview;
-@end
+id<UIKitCorePrivateContextMenuStyle> UIKitCorePrivateContextMenuStyleCreate(void) {
+  // _UIContextMenuStyle
+  return [UIKitCorePrivateClassFromBase64(@"X1VJQ29udGV4dE1lbnVTdHlsZQ==") new];
+}
 
 @interface UIButton (UIKitCorePrivateContextMenuStyle)
 - (id<UIKitCorePrivateContextMenuStyle>)_contextMenuInteraction:(UIContextMenuInteraction *)interaction
