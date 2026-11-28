@@ -25,11 +25,13 @@ UIKIT_EXTERN id UIKitCorePrivateMakeEmptyHighlightEffect(UITargetedPreview *prev
 UIKIT_EXTERN void UIKitCorePrivateSetContextMenuPreviewOutline(UIView *view, UIBezierPath *outline)
   NS_SWIFT_NAME(setContextMenuPreviewOutline(_:outline:));
 
+// Both methods are optional: implementing the style method makes UIKit use the returned style
+// instead of its default one, so delegates that only need the highlight effect must omit it.
 @protocol UIKitCorePrivateContextMenuInteractionDelegate <UIContextMenuInteractionDelegate>
+@optional
 - (id<UIKitCorePrivateContextMenuStyle>)_contextMenuInteraction:(UIContextMenuInteraction *)interaction
                                  styleForMenuWithConfiguration:(UIContextMenuConfiguration *)configuration
   NS_SWIFT_NAME(contextMenuInteraction(_:styleForMenuWith:));
-@optional
 - (nullable id)_contextMenuInteraction:(UIContextMenuInteraction *)interaction
                           configuration:(UIContextMenuConfiguration *)configuration
     interactionEffectForTargetedPreview:(UITargetedPreview *)preview
