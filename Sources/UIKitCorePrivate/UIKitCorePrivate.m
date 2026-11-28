@@ -1,4 +1,5 @@
 #import "UIKitCorePrivate.h"
+#import <objc/runtime.h>
 
 // App Store Connect rejects an app whose binary has the name of a non-public class (ITMS-90338), as a class
 // reference or as a string, even as a part of a longer string. Classes are looked up at runtime by a name that
@@ -132,4 +133,44 @@ void UIKitCorePrivateChatBalloonPrepare(UIView *view) {
 
 UIBezierPath *UIKitCorePrivateChatBalloonPreviewPath(UIView *view) {
   return [(id<UIKitCorePrivateChatBalloonDrawing>)view bezierPathForDragPreview];
+}
+
+@protocol UIKitCorePrivateHighlightEffectFactory <NSObject>
++ (id)effectWithPreview:(UITargetedPreview *)preview continuingFromPreview:(UITargetedPreview * _Nullable)previousPreview;
+@end
+
+id UIKitCorePrivateMakeEmptyHighlightEffect(UITargetedPreview *preview) {
+  // _UINullClickHighlightEffect
+  Class<UIKitCorePrivateHighlightEffectFactory> effectClass =
+      UIKitCorePrivateClassFromBase64(@"X1VJTnVsbENsaWNrSGlnaGxpZ2h0RWZmZWN0");
+  return [effectClass effectWithPreview:preview continuingFromPreview:preview];
+}
+
+static const char BubblePreviewOutlineKey;
+
+@protocol UIKitCorePrivateTargetedPreviewPlatterStyle <NSObject>
+- (void)_setPrefersUnmaskedPlatterStyle:(BOOL)unmasked;
+@end
+
+void UIKitCorePrivateSetContextMenuPreviewOutline(UIView *view, UIBezierPath *outline) {
+  static dispatch_once_t once;
+  dispatch_once(&once, ^{
+    // UIKit builds the expanded preview inside the transition. Applying the
+    // outline after presentation leaves the default platter in the opening
+    // frames (twitter-studio/tweetbot#1068).
+    // _UIContentPlatterView
+    Class platterClass = UIKitCorePrivateClassFromBase64(@"X1VJQ29udGVudFBsYXR0ZXJWaWV3");
+    SEL selector = NSSelectorFromString(@"setExpandedPreview:");
+    Method setter = class_getInstanceMethod(platterClass, selector);
+    void (*setExpandedPreview)(id, SEL, UITargetedPreview *) = (void *)method_getImplementation(setter);
+    method_setImplementation(setter, imp_implementationWithBlock(^(id platter, UITargetedPreview *preview) {
+      UIBezierPath *path = objc_getAssociatedObject(preview.view, &BubblePreviewOutlineKey);
+      if (path != nil) {
+        preview.parameters.visiblePath = path;
+        [(id<UIKitCorePrivateTargetedPreviewPlatterStyle>)preview _setPrefersUnmaskedPlatterStyle:YES];
+      }
+      setExpandedPreview(platter, selector, preview);
+    }));
+  });
+  objc_setAssociatedObject(view, &BubblePreviewOutlineKey, [outline copy], OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 }
