@@ -25,6 +25,7 @@ UIKIT_EXTERN id<UIKitCorePrivateContextMenuStyle> UIKitCorePrivateContextMenuSty
 // stays as UIKit's default.
 // UIKit's own setter throws "This SPI may only be used by approved processes!" in other processes, so the stored
 // value is written directly. Checked on iOS 27.3 with UIRectEdgeTop and UIRectEdgeBottom.
+// If a later OS renames the instance variable or drops `+defaultStyle`, this throws instead of returning a style.
 UIKIT_EXTERN id<UIKitCorePrivateContextMenuStyle> UIKitCorePrivateContextMenuStyleCreateDefault(UIRectEdge menuAttachmentEdge)
   NS_SWIFT_NAME(makeDefaultContextMenuStyle(menuAttachmentEdge:));
 
