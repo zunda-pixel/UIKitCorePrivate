@@ -44,6 +44,21 @@ id<UIKitCorePrivateContextMenuStyle> UIKitCorePrivateContextMenuStyleCreate(void
   return [UIKitCorePrivateClassFromBase64(@"X1VJQ29udGV4dE1lbnVTdHlsZQ==") new];
 }
 
+@protocol UIKitCorePrivateContextMenuStyleProviding <NSObject>
++ (id)defaultStyle;
+@end
+
+id<UIKitCorePrivateContextMenuStyle> UIKitCorePrivateContextMenuStyleCreateDefault(UIRectEdge menuAttachmentEdge) {
+  // _UIContextMenuStyle
+  Class<UIKitCorePrivateContextMenuStyleProviding> styleClass = UIKitCorePrivateClassFromBase64(@"X1VJQ29udGV4dE1lbnVTdHlsZQ==");
+  // The default style may be shared with other menus, so the edge is written to a copy.
+  NSObject<UIKitCorePrivateContextMenuStyle> *style = [[styleClass defaultStyle] copy];
+  // -setPreferredAttachmentEdge: asserts that the process is an approved one. Key-value coding finds no setter
+  // for this key and writes the instance variable instead.
+  [style setValue:@(menuAttachmentEdge) forKey:@"_preferredAttachmentEdge"];
+  return style;
+}
+
 @interface UIButton (UIKitCorePrivateContextMenuStyle)
 - (id<UIKitCorePrivateContextMenuStyle>)_contextMenuInteraction:(UIContextMenuInteraction *)interaction
                                  styleForMenuWithConfiguration:(UIContextMenuConfiguration *)configuration;
